@@ -151,3 +151,18 @@ def test_pu16_kardex_en_orden_cronologico(inv):
     inv.registrar_entrada("TUB-050", 5, "bodega1")
     tipos = [(m.tipo, m.cantidad) for m in inv.kardex("mrt-001")]
     assert tipos == [(TipoMovimiento.ENTRADA, 10), (TipoMovimiento.SALIDA, 2)]
+
+
+# RF-08 Exportar stock bajo a CSV (SC-01) ------------------------------
+def test_pu17_csv_contiene_cabecera_y_productos_bajo_stock(inv):
+    inv.registrar_entrada("MRT-001", 2, "bodega1")    # faltan 3
+    inv.registrar_entrada("TUB-050", 40, "bodega1")   # no aparece
+    lineas = inv.exportar_bajo_stock_csv().splitlines()
+    assert lineas[0] == "codigo;nombre;categoria;stock;stock_minimo;faltante"
+    assert lineas[1:] == ["MRT-001;Martillo de uña 16 oz;Herramientas;2;5;3"]
+
+
+def test_pu18_csv_sin_alertas_solo_trae_cabecera(inv):
+    inv.registrar_entrada("MRT-001", 9, "bodega1")
+    inv.registrar_entrada("TUB-050", 40, "bodega1")
+    assert inv.exportar_bajo_stock_csv().count("\n") == 1

@@ -1,4 +1,6 @@
-"""Servicio de inventario: reglas de negocio RF-01 a RF-07."""
+"""Servicio de inventario: reglas de negocio RF-01 a RF-08."""
+import csv
+import io
 import unicodedata
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
@@ -98,6 +100,18 @@ class ServicioInventario:
         producto = self.obtener(codigo)
         return [m for m in self._movimientos
                 if m.codigo_producto == producto.codigo]
+
+    # RF-08 (Solicitud de cambio SC-01, aprobada) -----------------------
+    def exportar_bajo_stock_csv(self) -> str:
+        """CSV separado por ';' (Excel en configuración regional es-EC)."""
+        salida = io.StringIO()
+        escritor = csv.writer(salida, delimiter=";", lineterminator="\n")
+        escritor.writerow(["codigo", "nombre", "categoria", "stock",
+                           "stock_minimo", "faltante"])
+        for p in self.productos_bajo_stock():
+            escritor.writerow([p.codigo, p.nombre, p.categoria, p.stock,
+                               p.stock_minimo, p.stock_minimo - p.stock])
+        return salida.getvalue()
 
     # Auxiliares ----------------------------------------------------------
     @staticmethod

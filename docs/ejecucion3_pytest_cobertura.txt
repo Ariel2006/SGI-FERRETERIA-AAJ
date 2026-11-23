@@ -1,0 +1,14 @@
+.......................................                                  [100%]
+================================ tests coverage ================================
+_______________ coverage: platform linux, python 3.13.18-final-0 _______________
+
+Name                         Stmts   Miss Branch BrPart  Cover
+--------------------------------------------------------------
+src/inventario/__init__.py       4      0      0      0   100%
+src/inventario/api.py           54      0      0      0   100%
+src/inventario/errores.py        5      0      0      0   100%
+src/inventario/modelos.py       26      0      0      0   100%
+src/inventario/servicio.py      84      0     20      0   100%
+--------------------------------------------------------------
+TOTAL                          173      0     20      0   100%
+39 passed in 0.54s
