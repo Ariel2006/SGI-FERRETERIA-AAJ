@@ -1,0 +1,499 @@
+% =====================================================================
+%  Presentación del Taller práctico ISO/IEC 29110 (15 minutos)
+%  Caso SGI-Ferretería · Aseguramiento de la Calidad de Software · NRC 36845
+%  Autor: Ariel Jara (AAJ)
+%  Compilar con pdfLaTeX. Para obtener el guion del expositor:
+%    pdflatex -jobname=Notas_Presentacion_AAJ "\def\connotas{}\input{Presentacion_ISO29110_AAJ.tex}"
+% =====================================================================
+\documentclass[aspectratio=169,11pt]{beamer}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish,es-noshorthands,es-nodecimaldot,es-tabla]{babel}
+\usepackage{lmodern}
+\usepackage{booktabs,tabularx,array}
+\usepackage{pifont}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,fit,calc,babel}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+
+\ifdefined\connotas
+  \usepackage{pgfpages}
+  \setbeameroption{show only notes}
+\fi
+
+% ---------- Paleta ----------
+\definecolor{verdeespe}{HTML}{1B5E20}
+\definecolor{verdeclaro}{HTML}{E8F3EA}
+\definecolor{azulserie}{HTML}{2A78D6}
+\definecolor{azulcaja}{HTML}{EAF2FC}
+\definecolor{naranjaserie}{HTML}{EB6834}
+\definecolor{ambar}{HTML}{8A5A00}
+\definecolor{ambarclaro}{HTML}{FFF6E0}
+\definecolor{gristexto}{HTML}{5F5E5A}
+\definecolor{rojo}{HTML}{B3261E}
+
+% ---------- Tema ----------
+\usetheme{default}
+\setbeamertemplate{navigation symbols}{}
+\setbeamercolor{frametitle}{fg=verdeespe}
+\setbeamerfont{frametitle}{series=\bfseries,size=\Large}
+\setbeamercolor{structure}{fg=verdeespe}
+\setbeamercolor{normal text}{fg=black!88}
+\setbeamertemplate{itemize items}{\color{verdeespe}\small$\blacksquare$}
+\setbeamertemplate{enumerate items}[default]
+\setbeamercolor{block title}{bg=verdeespe,fg=white}
+\setbeamercolor{block body}{bg=verdeclaro}
+\setbeamertemplate{frametitle}{%
+  \vspace*{0.35cm}\hspace*{-0.1cm}\insertframetitle\par
+  \vspace*{-0.15cm}{\color{verdeespe}\rule{1.4cm}{2pt}}}
+\setbeamertemplate{footline}{%
+  \hspace*{0.45cm}{\scriptsize\color{gristexto}ISO/IEC 29110 · Caso SGI-Ferretería · Ariel Jara}%
+  \hfill{\scriptsize\color{gristexto}\insertframenumber\,/\,\inserttotalframenumber}\hspace*{0.45cm}\vspace*{0.25cm}}
+\setbeamertemplate{note page}{\vspace*{0.3cm}\insertslideintonotes{0.42}\par\vspace*{0.3cm}\small\insertnote}
+
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+\newcommand{\si}{\textcolor{verdeespe}{\ding{51}}}
+\newcommand{\no}{\textcolor{rojo}{\ding{55}}}
+\newcommand{\cod}[1]{\texttt{\small #1}}
+\newcommand{\cifra}[2]{\begin{minipage}[t]{0.47\linewidth}\centering{\LARGE\bfseries\color{verdeespe}#1}\\[2pt]{\footnotesize\color{gristexto}#2}\end{minipage}}
+\newcommand{\caja}[3]{\begin{beamercolorbox}[wd=\dimexpr\linewidth-12pt\relax,sep=6pt,rounded=true]{#1}#3\end{beamercolorbox}}
+\setbeamercolor{cajaverde}{bg=verdeclaro,fg=black}
+\setbeamercolor{cajaazul}{bg=azulcaja,fg=black}
+\setbeamercolor{cajaambar}{bg=ambarclaro,fg=black}
+
+\title{Implementación del Perfil Básico de ISO/IEC 29110}
+\subtitle{Caso práctico: SGI-Ferretería, sistema web de gestión de inventario}
+\author{Ariel Jara}
+\date{23 de noviembre de 2026}
+
+\begin{document}
+
+% =====================================================================
+\begin{frame}[plain]
+\begin{tikzpicture}[remember picture,overlay]
+  \fill[verdeespe] (current page.north west) rectangle ([yshift=-0.55cm]current page.north east);
+  \fill[verdeespe] (current page.south west) rectangle ([yshift=0.25cm]current page.south east);
+\end{tikzpicture}
+\vspace{0.4cm}
+{\small\color{gristexto}Universidad de las Fuerzas Armadas ESPE · Carrera de Ingeniería de Software}\\[0.1cm]
+{\small\color{gristexto}Aseguramiento de la Calidad de Software · NRC 36845 · Taller práctico}\\[1.1cm]
+{\LARGE\bfseries\color{verdeespe}Implementación del Perfil Básico\\[0.15cm] de ISO/IEC 29110}\\[0.4cm]
+{\large Caso práctico: SGI-Ferretería, sistema web de gestión de inventario}\\[1.1cm]
+\begin{tabular}{@{}>{\bfseries}l l@{}}
+Estudiante & Ariel Jara (roles GP, LT, AN, DIS, PR y ET) \\
+Docente & Ing. Diego Gamboa \\
+Fecha & 23 de noviembre de 2026 · Sesión S2 \\
+\end{tabular}
+\note{\textbf{(0:00–0:30)} Presentarse. «Voy a mostrar cómo apliqué el Perfil Básico de ISO/IEC 29110 a un proyecto pequeño, qué evidencias generé y qué aprendí midiendo el retrabajo.» Aclarar desde el inicio que trabajé solo y asumí los seis roles.}
+\end{frame}
+
+% =====================================================================
+\begin{frame}{El caso en un minuto}
+\begin{columns}[T,onlytextwidth]
+\column{0.52\textwidth}
+\textbf{Ferretería «El Perno»} (caso simulado)\\[0.1cm]
+{\small 1\,200 artículos, dos cajas, una bodega. Inventario en cuaderno y hoja de cálculo.}
+\vspace{0.3cm}
+
+\textbf{Tres problemas}
+\begin{itemize}\small
+  \item Quiebres de stock: se descubren cuando el cliente pide el producto.
+  \item Diferencias de inventario: nadie sabe quién sacó qué.
+  \item Pedidos a proveedores «a ciegas».
+\end{itemize}
+\column{0.44\textwidth}
+\caja{cajaverde}{}{\small
+\textbf{Incremento 1 (alcance del taller)}\\[0.1cm]
+API REST de inventario en Python + FastAPI:
+\begin{itemize}\footnotesize
+  \item productos, entradas y salidas con responsable
+  \item alertas de stock bajo y búsqueda
+  \item valor del inventario y kárdex
+  \item exportación CSV (por SC-01)
+\end{itemize}}
+\vspace{0.15cm}
+{\footnotesize\color{gristexto}Cliente y empresa ficticios. Código, pruebas y mediciones \textbf{reales} y reproducibles.}
+\end{columns}
+\note{\textbf{(0:30–1:30)} Contar el problema del cliente con los tres dolores. Remarcar que el cliente es un personaje del caso, pero que el software y las pruebas son reales: el repositorio está entregado con su historial de Git.}
+\end{frame}
+
+% =====================================================================
+\begin{frame}{ISO/IEC 29110 · Perfil Básico}
+\centering
+\begin{tikzpicture}[scale=0.92,transform shape,font=\footnotesize,
+  act/.style={draw=verdeespe,fill=verdeclaro,rounded corners=2pt,minimum width=2.3cm,minimum height=0.85cm,align=center},
+  acti/.style={draw=azulserie,fill=azulcaja,rounded corners=2pt,minimum width=1.85cm,minimum height=0.85cm,align=center},
+  prod/.style={draw=gristexto,fill=white,minimum height=0.6cm,align=center,font=\scriptsize},
+  fl/.style={-{Stealth[length=2mm]},thick,gristexto}]
+  \node[act] (g1) {GP.1\\Planificación};
+  \node[act,right=0.5cm of g1] (g2) {GP.2\\Ejecución};
+  \node[act,right=0.5cm of g2] (g3) {GP.3\\Evaluación y control};
+  \node[act,right=0.5cm of g3] (g4) {GP.4\\Cierre};
+  \foreach \a/\b in {g1/g2,g2/g3,g3/g4} \draw[fl] (\a)--(\b);
+  \node[fit=(g1)(g4),draw=verdeespe,dashed,inner sep=6pt,label={[font=\small\bfseries,text=verdeespe]left:GP}] (GP) {};
+  \node[acti,below=1.6cm of g1.south west,anchor=north west] (i1) {IS.1\\Inicio};
+  \node[acti,right=0.25cm of i1] (i2) {IS.2\\Requisitos};
+  \node[acti,right=0.25cm of i2] (i3) {IS.3\\Diseño};
+  \node[acti,right=0.25cm of i3] (i4) {IS.4\\Construcción};
+  \node[acti,right=0.25cm of i4] (i5) {IS.5\\Integración};
+  \node[acti,right=0.25cm of i5] (i6) {IS.6\\Entrega};
+  \foreach \a/\b in {i1/i2,i2/i3,i3/i4,i4/i5,i5/i6} \draw[fl] (\a)--(\b);
+  \node[fit=(i1)(i6),draw=azulserie,dashed,inner sep=6pt,label={[font=\small\bfseries,text=azulserie]left:IS}] (IS) {};
+  \draw[fl,azulserie] ([xshift=-1cm]GP.south) -- node[left,font=\scriptsize]{Plan del proyecto} ([xshift=-1cm]GP.south|-IS.north);
+  \draw[fl,verdeespe] ([xshift=1cm]IS.north) -- node[right,font=\scriptsize]{Reporte de avance, cambios} ([xshift=1cm]IS.north|-GP.south);
+  \node[prod,above=0.35cm of g1] (sow) {Enunciado del trabajo};
+  \draw[fl] (sow)--(g1);
+  \node[prod,below=0.35cm of i6] (cf) {Configuración del software};
+  \draw[fl] (i6)--(cf);
+\end{tikzpicture}
+
+\vspace{0.15cm}
+{\small Para entidades de hasta 25 personas · no impone ciclo de vida · se apoya en \textbf{paquetes de despliegue (DP)}}
+\note{\textbf{(1:30–2:30)} Dos procesos en paralelo: Gestión del Proyecto e Implementación de Software. El Enunciado del trabajo entra por GP; la configuración del software sale por IS. El plan baja a IS y el avance y los cambios suben a GP. Lo importante: la norma pide productos de trabajo, no un ciclo en cascada; lo hice incremental.}
+\end{frame}
+
+% =====================================================================
+\begin{frame}{Ruta seguida: 12 pasos, 2 sesiones}
+\centering
+\begin{tikzpicture}[font=\scriptsize,
+  p/.style={circle,draw=verdeespe,fill=verdeclaro,minimum size=0.7cm,inner sep=0pt,font=\small\bfseries},
+  q/.style={circle,draw=azulserie,fill=azulcaja,minimum size=0.7cm,inner sep=0pt,font=\small\bfseries},
+  t/.style={align=center,text width=1.9cm,font=\scriptsize},
+  fl/.style={-{Stealth[length=1.6mm]},gristexto}]
+\foreach \n/\txt [count=\i] in {1/Entorno\\IS.1,2/Enunciado\\GP.1.1,3/Plan\\GP.1,4/Requisitos\\IS.2}{
+  \node[p] (a\n) at ({(\i-1)*2.3},0) {\n}; \node[t,below=1pt of a\n] {\txt};}
+\foreach \n/\txt [count=\i] in {5/Diseño\\IS.3,6/Construcción\\IS.4}{
+  \node[q] (a\n) at ({(\i+3)*2.3},0) {\n}; \node[t,below=1pt of a\n] {\txt};}
+\foreach \n/\txt [count=\i] in {7/Integración\\IS.5,8/Cambios\\GP.2--GP.3,9/Métricas\\GP.3,10/Entrega\\IS.6,11/Cierre\\GP.4,12/Autoevaluación\\DP}{
+  \node[q] (a\n) at ({(\i-1)*2.3},-2.3) {\n}; \node[t,below=1pt of a\n] {\txt};}
+\foreach \a/\b in {1/2,2/3,3/4,4/5,5/6,7/8,8/9,9/10,10/11,11/12} \draw[fl] (a\a)--(a\b);
+\draw[fl] (a6.east) -- ++(0.75,0) |- (-0.9,-1.35) |- (a7.west);
+\node[p,minimum size=0.3cm] (l1) at (2.2,-3.75) {}; \node[anchor=west] at (l1.east) {Sesión S1 y trabajo autónomo};
+\node[q,minimum size=0.3cm] (l2) at (7.2,-3.75) {}; \node[anchor=west] at (l2.east) {Sesión S2 y trabajo autónomo};
+\end{tikzpicture}
+
+\vspace{0.2cm}
+{\small Cada paso del informe tiene: \textbf{tarea de la norma · rol · entradas · salidas · criterio de terminado · evidencia}}
+\note{\textbf{(2:30–3:00)} Mostrar la ruta. El informe es una guía: cada paso tiene una ficha y la evidencia real. En S1 se planificó y se acordaron requisitos; en S2 se construyó, se gestionaron cambios, se midió y se cerró.}
+\end{frame}
+
+% =====================================================================
+\begin{frame}{Roles: un equipo de una persona}
+\begin{columns}[T,onlytextwidth]
+\column{0.55\textwidth}
+\scriptsize\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{@{}l c c c c c c c@{}}
+\toprule
+\textbf{Actividad} & \textbf{CL} & \textbf{GP} & \textbf{LT} & \textbf{AN} & \textbf{DIS} & \textbf{PR} & \textbf{ET} \\
+\midrule
+GP.1 Planificación & A & R & P & & & & P \\
+GP.2–GP.3 Control  & P & R & P & & & & P \\
+GP.4 Cierre        & A & R & & & & & \\
+IS.2 Requisitos    & A & P & P & R & & & P \\
+IS.3 Diseño        & & & A & & R & & P \\
+IS.4 Construcción  & & & A & & & R & P \\
+IS.5 Integración   & & & A & & P & R & P \\
+IS.6 Entrega       & A & R & P & & & & P \\
+\bottomrule
+\end{tabular}\\[0.1cm]
+{\scriptsize R = responsable · A = aprueba · P = participa}
+\column{0.41\textwidth}
+\caja{cajaambar}{}{\small
+\textbf{Riesgo:} quien produce también verifica.\\[0.15cm]
+\textbf{Cómo se compensó}
+\begin{enumerate}\footnotesize
+  \item Verificar siempre con una \textbf{lista de chequeo escrita}.
+  \item Dejar una noche entre producir y verificar.
+  \item Escribir las pruebas desde los \textbf{criterios de aceptación}, no desde el código.
+\end{enumerate}}
+\end{columns}
+\note{\textbf{(3:00–3:45)} Asumí GP, LT, AN, DIS, PR y ET. El cliente es el personaje del caso. El riesgo principal es la falta de independencia al verificar; lo registré como R5 y lo mitigué con tres reglas. Más adelante se ve que las pruebas automatizadas funcionaron como un revisor independiente.}
+\end{frame}
+
+% =====================================================================
+\begin{frame}{S1 · Enunciado del trabajo y Plan del proyecto}
+\begin{columns}[T,onlytextwidth]
+\column{0.47\textwidth}
+\textbf{Enunciado del trabajo} \hfill{\scriptsize GP.1.1}\\[0.1cm]
+{\small Revisión con 6 criterios $\rightarrow$ 2 observaciones:}
+\begin{itemize}\footnotesize
+  \item Se añadió «\textbf{Fuera de alcance}»: interfaz, usuarios, ventas, facturación.
+  \item «Poco tiempo» pasó a «\textbf{máximo 24 horas}».
+\end{itemize}
+\vspace{0.2cm}
+\textbf{Plan del proyecto} \hfill{\scriptsize GP.1, GP.1.2}
+\begin{itemize}\footnotesize
+  \item Instrucciones de entrega con \textbf{criterio de aceptación} por entregable.
+  \item 22,0 h estimadas · USD 176 referenciales · 5 riesgos.
+  \item Versiones: 0.1 $\rightarrow$ 1.0 (verificado) $\rightarrow$ 1.1 (SC-01).
+\end{itemize}
+\column{0.49\textwidth}
+\scriptsize
+\begin{tabularx}{\linewidth}{@{}L L c@{}}
+\toprule
+\textbf{Riesgo} & \textbf{Respuesta} & \textbf{Exp.} \\
+\midrule
+R1 Disponibilidad & Priorizar «Debe» & 9 \\
+R5 Autoverificación & Listas de chequeo & 6 \\
+R2 Cambios del cliente & Solicitud de cambio & 4 \\
+R4 Estimación optimista & Registrar horas reales & 4 \\
+R3 Pérdida del repositorio & Respaldo diario & 3 \\
+\bottomrule
+\end{tabularx}
+
+\vspace{0.3cm}
+\caja{cajaverde}{}{\footnotesize\textbf{Objetivo medible del incremento:} entregar el 23/11 con todas las pruebas aprobadas y cobertura $\geq 80$\,\%.}
+\end{columns}
+\note{\textbf{(3:45–5:00)} Lo más útil del enunciado fue escribir «Fuera de alcance»: después permitió rechazar SC-02 sin discusión. Del plan, destacar la columna «criterio de aceptación» en las instrucciones de entrega: el acta final solo verifica esas filas. R4 (estimación optimista) se materializó, como se verá en métricas.}
+\end{frame}
+
+% =====================================================================
+\begin{frame}{S1 · Requisitos verificados y validados (IS.2)}
+\begin{columns}[T,onlytextwidth]
+\column{0.5\textwidth}
+\textbf{8 RF y 4 RNF}, todos con criterio de aceptación.\\[0.15cm]
+\textbf{Verificación} (lista de chequeo): 3 defectos
+\scriptsize
+\begin{tabularx}{\linewidth}{@{}l l L@{}}
+\toprule
+V-01 & RF-04 & «Stock bajo» indefinido $\rightarrow$ stock $\leq$ mínimo \\
+V-02 & RF-05 & ¿Distingue tildes? $\rightarrow$ no \\
+V-03 & RNF-02 & «Rápido» $\rightarrow$ $< 1$ s con 5\,000 productos \\
+\bottomrule
+\end{tabularx}
+\column{0.46\textwidth}
+\textbf{Validación con el cliente}\\[0.1cm]
+\caja{cajaazul}{}{\small «Si quedan 5 martillos y el mínimo es 5, ¿debe aparecer la alerta?»\\[0.1cm]
+\footnotesize\color{gristexto}$\rightarrow$ Sí: confirma la regla «$\leq$».}
+\vspace{0.15cm}
+\caja{cajaazul}{}{\small «Cuando falta mercadería necesito ver quién la sacó.»\\[0.1cm]
+\footnotesize\color{gristexto}$\rightarrow$ Necesidad no mencionada: nace \textbf{RF-07 kárdex}.}
+\vspace{0.1cm}
+{\footnotesize Especificación \textbf{validada} (v1.1) y puesta en línea base.}
+\end{columns}
+\note{\textbf{(5:00–6:15)} Este es el paso que más valor aportó. Validar con ejemplos numéricos, no leyendo el documento: el cliente no vio la ambigüedad de «stock bajo» al leerla, pero sí con el caso de los martillos. Y ese mismo ejemplo se convirtió en la prueba PU-11.}
+\end{frame}
+
+% =====================================================================
+\begin{frame}{S2 · Construcción y pruebas (IS.4–IS.5)}
+\begin{columns}[T,onlytextwidth]
+\column{0.5\textwidth}
+\textbf{Primera ejecución: 26 de 31 aprobadas}\\[0.1cm]
+\scriptsize
+\begin{tabularx}{\linewidth}{@{}l l L@{}}
+\toprule
+\textbf{Defecto} & \textbf{Prueba} & \textbf{Causa} \\
+\midrule
+DEF-01 & PU-06 & Entrada rechazada igual modificaba el stock \\
+DEF-02 & PU-11 & \cod{<} en vez de \cod{<=} (¡la regla de V-01!) \\
+DEF-03 & PU-13 & Búsqueda distinguía tildes (¡V-02!) \\
+\bottomrule
+\end{tabularx}
+\vspace{0.2cm}
+
+\normalsize
+\caja{cajaambar}{}{\footnotesize La especificación estaba bien; el código no la siguió. Las pruebas escritas \textbf{desde el criterio de aceptación} lo detectaron en minutos.}
+\column{0.46\textwidth}
+\centering
+\begin{tabular}{@{}c c@{}}
+\cifra{39/39}{pruebas aprobadas} & \cifra{100\,\%}{cobertura sentencias y ramas} \\[0.9cm]
+\cifra{13,5 ms}{búsqueda con 5\,000 productos} & \cifra{6}{pruebas de integración API} \\
+\end{tabular}
+\end{columns}
+\note{\textbf{(6:15–7:30)} 18 casos unitarios y 6 de integración. La primera ejecución falló en 5: tres defectos. Lo interesante: dos de ellos repetían justo las ambigüedades que ya había corregido en requisitos. Línea base lb-IS4 tras corregir. Resultado final: 39/39, cobertura 100\,\% (meta 80\,\%) y RNF-02 cumplido con margen.}
+\end{frame}
+
+% =====================================================================
+\begin{frame}{Una guía se verifica ejecutándola: DEF-04}
+\begin{columns}[c,onlytextwidth]
+\column{0.55\textwidth}
+\begin{enumerate}\small
+  \item Se siguió el \cod{README.md} paso a paso en un \textbf{entorno virtual nuevo}.
+  \item \cod{pip install} y pruebas: correctos.
+  \item \cod{uvicorn inventario.api:app}: \textbf{\color{rojo}falló}.
+\end{enumerate}
+\vspace{0.2cm}
+\textbf{Causa raíz:} \cod{uvicorn} estaba instalado en el equipo de desarrollo, pero nunca se declaró en \cod{pyproject.toml}.
+\vspace{0.2cm}
+
+\textbf{Corrección:} declararlo y repetir la guía completa $\rightarrow$ 39/39 y servidor respondiendo en \cod{/docs}.
+\column{0.4\textwidth}
+\caja{cajaverde}{}{\small
+\textbf{Lección}\\[0.1cm]
+La guía parecía completa al leerla. Solo un entorno limpio revela las dependencias implícitas.\\[0.15cm]
+\footnotesize\color{gristexto}Acción correctiva: toda guía de instalación se verifica en un entorno limpio antes de entregarla.}
+\end{columns}
+\note{\textbf{(7:30–8:15)} Este defecto apareció en la revisión final y es real. Es un buen ejemplo de la tarea de verificar la guía de operación: leerla no basta. Quedó registrado como DEF-04 y sumó 0,5 h de retrabajo.}
+\end{frame}
+
+% =====================================================================
+\begin{frame}{Solicitudes de cambio (GP.2–GP.3)}
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}
+\caja{cajaverde}{}{%
+{\large\si}\ \textbf{SC-01 · ACEPTADA}\\[0.1cm]
+\small Exportar a CSV los productos con stock bajo para enviarlos al proveedor.\\[0.15cm]
+\footnotesize
+\begin{tabularx}{\linewidth}{@{}l L@{}}
+Impacto técnico & Bajo (reutiliza RF-04) \\
+Esfuerzo & +1,0 h · +USD 8 \\
+Cronograma & Sin cambio \\
+Resultado & Plan v1.1, RF-08, PU-17/18 \\
+\end{tabularx}}
+\column{0.48\textwidth}
+\caja{cajaambar}{}{%
+{\large\no}\ \textbf{SC-02 · RECHAZADA}\\[0.1cm]
+\small Emitir facturas electrónicas del SRI al registrar una venta.\\[0.15cm]
+\footnotesize
+\begin{tabularx}{\linewidth}{@{}l L@{}}
+Impacto técnico & Alto (firma, XML, SRI) \\
+Esfuerzo & 25–30 h (más que el proyecto) \\
+Cronograma & +2 semanas \\
+Base & «Fuera de alcance» del enunciado \\
+\end{tabularx}}
+\end{columns}
+\vspace{0.3cm}
+\centering{\small Rechazar también es gestionar: la decisión se apoya en el \textbf{impacto medido} y en el \textbf{alcance firmado}.}
+\note{\textbf{(8:15–9:15)} Las dos solicitudes llegaron en la misma reunión. Ambas pasaron por el mismo formulario con impacto técnico, esfuerzo, costo y cronograma. SC-01 se aceptó y actualizó el plan a v1.1; SC-02 se rechazó y quedó como candidata para un proyecto posterior.}
+\end{frame}
+
+% =====================================================================
+\begin{frame}{Métricas: horas por categoría y retrabajo}
+\begin{columns}[c,onlytextwidth]
+\column{0.56\textwidth}
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  xbar=1.5pt,width=\linewidth,height=6.2cm,bar width=5pt,
+  xmin=0,xmax=7,xlabel={Horas},xlabel style={font=\scriptsize},
+  symbolic y coords={RET,ENT,INT,CON,DIS,REQ,GP},ytick=data,
+  y tick label style={font=\scriptsize},x tick label style={font=\scriptsize},
+  axis x line*=bottom,axis y line*=left,xmajorgrids,grid style={gristexto!20},
+  enlarge y limits=0.09,
+  legend style={font=\scriptsize,at={(0.5,1.03)},anchor=south,draw=none,fill=none,legend columns=2,/tikz/every even column/.append style={column sep=8pt}},
+  every axis plot/.append style={draw=white,line width=0.5pt}]
+\addplot[fill=azulserie] coordinates {(4.0,GP) (3.0,REQ) (2.0,DIS) (6.0,CON) (3.5,INT) (2.5,ENT) (1.0,RET)};
+\addplot[fill=naranjaserie] coordinates {(4.5,GP) (3.5,REQ) (2.0,DIS) (5.5,CON) (3.0,INT) (2.0,ENT) (3.0,RET)};
+\legend{Planificado (v1.1),Real}
+\end{axis}
+\end{tikzpicture}
+\column{0.4\textwidth}
+\centering
+\begin{tabular}{@{}c c@{}}
+\cifra{23,5 h}{real frente a 22,0 h (+6,8\,\%)} & \cifra{12,8\,\%}{retrabajo (3,0 h)} \\[0.9cm]
+\cifra{3$\times$}{la reserva de retrabajo} & \cifra{56\,\%}{defectos eliminados antes de codificar} \\
+\end{tabular}
+\vspace{0.15cm}
+
+{\scriptsize\color{gristexto}Retrabajo = horas corrigiendo defectos / horas totales. La mitad vino de documentos.}
+\end{columns}
+\note{\textbf{(9:15–10:45)} Mensaje central: sin la categoría «Retrabajo» el proyecto solo parecería un 6,8\,\% atrasado. Con ella se ve que el trabajo productivo quedó 0,5 h por debajo del plan y que toda la desviación vino del retrabajo, que triplicó la reserva. Acción: reservar 13\,\% en el incremento 2. 5 de 9 defectos se eliminaron en revisiones antes de codificar.}
+\end{frame}
+
+% =====================================================================
+\begin{frame}{Cierre: acta de aceptación y autoevaluación}
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}
+\textbf{Acta de aceptación} \hfill{\scriptsize GP.4, IS.6}\\[0.1cm]
+\footnotesize
+\begin{tabularx}{\linewidth}{@{}L c@{}}
+\toprule
+Software \cod{v0.1.0} (39/39, demo RF-01 a RF-08) & \si \\
+Especificación de requisitos v1.2 & \si \\
+Manual de usuario (OpenAPI) & \si \\
+Guía de operación (entorno limpio) & \si \\
+Documentación de mantenimiento & \si \\
+Informe del proyecto (\LaTeX) & \si \\
+\bottomrule
+\end{tabularx}\\[0.15cm]
+{\scriptsize Pendientes: incremento 2 · SC-02 · volver a medir RNF-02 con base de datos.}
+\column{0.48\textwidth}
+\textbf{Autoevaluación con el DP}\\[0.1cm]
+\centering
+\cifra{90\,\%}{20 cumple · 5 parcial · 1 no aplica}
+\vspace{0.2cm}
+
+\raggedright\footnotesize
+\textbf{Brechas y mejora}
+\begin{itemize}\scriptsize
+  \item Sin acta propia de reuniones $\rightarrow$ acta breve por reunión.
+  \item Recuperación del respaldo no probada $\rightarrow$ probarla una vez.
+  \item Diseño sin revisor independiente $\rightarrow$ revisión cruzada.
+  \item Manual tardío y mantenimiento en el README.
+\end{itemize}
+\end{columns}
+\note{\textbf{(10:45–12:00)} El acta solo comprueba fila por fila las instrucciones de entrega acordadas en el plan. La autoevaluación da 90\,\%; las brechas son honestas y tienen acción. La revisión del diseño fue lo más débil por trabajar solo.}
+\end{frame}
+
+% =====================================================================
+\begin{frame}{Reflexión}
+\begin{columns}[T,onlytextwidth]
+\column{0.46\textwidth}
+\textbf{¿Qué tarea aportó más valor?}\\[0.1cm]
+\caja{cajaverde}{}{\small
+\textbf{Verificar y validar requisitos (IS.2)}, encadenado con las pruebas:\\[0.15cm]
+\centering\footnotesize requisito aclarado $\rightarrow$ ejemplo con el cliente $\rightarrow$ prueba unitaria\\[0.15cm]
+\raggedright Con 1,5 h eliminó 4 de los 9 defectos y atrapó DEF-02 y DEF-03 antes de llegar al cliente.}
+\column{0.5\textwidth}
+\textbf{¿Qué pareció burocrático y cómo simplificarlo?}\\[0.1cm]
+\scriptsize
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{2.3cm} L@{}}
+\toprule
+\textbf{Producto} & \textbf{Simplificación sin perder evidencia} \\
+\midrule
+3 documentos de usuario, operación y mantenimiento & Un \cod{README.md} versionado con secciones fijas + OpenAPI \\
+Trazabilidad manual & Marcar pruebas con su requisito y generar la matriz por script \\
+Solicitud de cambio & Plantilla de \emph{issue} con impacto, decisión y aprobador \\
+Registro de horas & Tiempo en la tarjeta del Kanban \\
+\bottomrule
+\end{tabularx}
+\end{columns}
+\vspace{0.25cm}
+\centering{\small La evidencia no tiene que ser un documento aparte: basta que sea \textbf{identificable, versionada} y muestre \textbf{quién aprobó qué}.}
+\note{\textbf{(12:00–13:30)} Responder las dos preguntas del taller. Lo burocrático no se elimina: se convierte en un artefacto que ya existe (commit, issue, salida de pytest), manteniendo la evidencia.}
+\end{frame}
+
+% =====================================================================
+\begin{frame}{Lecciones aprendidas}
+\begin{enumerate}
+  \item \textbf{La reserva de retrabajo debe basarse en datos.} Se reservó 4,5\,\% y se necesitó 12,8\,\%.
+  \item \textbf{Verificar no garantiza implementar bien.} La prueba desde el criterio de aceptación cierra la brecha.
+  \item \textbf{El alcance escrito es una herramienta de negociación.} SC-02 se rechazó sin conflicto.
+  \item \textbf{Una guía se verifica ejecutándola, no leyéndola.} DEF-04.
+  \item \textbf{Trabajar solo exige disciplina extra.} Listas de chequeo y pruebas reemplazan, en parte, al revisor.
+  \item \textbf{El Perfil Básico encaja con un ciclo incremental.} Los productos se generaron a medida que avanzaba el incremento.
+\end{enumerate}
+\note{\textbf{(13:30–14:30)} Recorrer las seis lecciones brevemente; enfatizar la 1 y la 4 porque salen de datos medidos.}
+\end{frame}
+
+% =====================================================================
+\begin{frame}[plain]
+\begin{tikzpicture}[remember picture,overlay]
+  \fill[verdeespe] (current page.north west) rectangle ([yshift=-0.55cm]current page.north east);
+  \fill[verdeespe] (current page.south west) rectangle ([yshift=0.25cm]current page.south east);
+\end{tikzpicture}
+\centering
+\vspace{0.6cm}
+{\LARGE\bfseries\color{verdeespe}Gracias · ¿Preguntas?}\\[0.6cm]
+\begin{columns}[T,onlytextwidth]
+\column{0.5\textwidth}
+\caja{cajaverde}{}{\small
+\textbf{Resultado}\\[0.1cm]
+\footnotesize Incremento entregado a tiempo · 39/39 pruebas · cobertura 100\,\% · retrabajo 12,8\,\% · autoevaluación 90\,\%.}
+\column{0.46\textwidth}
+\caja{cajaazul}{}{\footnotesize
+\textbf{Reproducir la demo}\\[0.1cm]
+{\scriptsize\ttfamily pip install -e ".[dev]"\\
+pytest -v -{}-cov=inventario\\
+uvicorn inventario.api:app -{}-app-dir src}\\
+\color{gristexto}Repositorio \cod{sgi-ferreteria-aaj}, etiqueta \cod{v0.1.0}}
+\end{columns}
+\vspace{0.5cm}
+
+{\small Ariel Jara · Aseguramiento de la Calidad de Software · NRC 36845}
+\note{\textbf{(14:30–15:00)} Cerrar con el resultado en una línea. Si hay tiempo o preguntas, abrir \cod{/docs} con el servidor corriendo y registrar una entrada en vivo.}
+\end{frame}
+
+\end{document}

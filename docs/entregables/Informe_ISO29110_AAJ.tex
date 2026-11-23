@@ -1,0 +1,1471 @@
+% =====================================================================
+%  Informe del Taller práctico ISO/IEC 29110 (Perfil Básico)
+%  Caso práctico: SGI-Ferretería - Sistema web de gestión de inventario
+%  Aseguramiento de la Calidad de Software - ESPE - NRC 36845
+%  Autor: Ariel Jara (AAJ)
+%  Compilar con pdfLaTeX (dos pasadas) o directamente en Overleaf.
+% =====================================================================
+\documentclass[11pt,a4paper]{article}
+
+% ---------- Idioma y tipografía ----------
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish,es-tabla,es-noshorthands,es-nodecimaldot]{babel}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage[a4paper,margin=2.4cm,headheight=14pt]{geometry}
+\usepackage{setspace}
+\setstretch{1.08}
+
+% ---------- Color, tablas y gráficos ----------
+\usepackage[table]{xcolor}
+\usepackage{graphicx}
+\usepackage{array,booktabs,tabularx,longtable,multirow,makecell}
+\usepackage{enumitem}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{pifont}
+\usepackage{amssymb}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,shapes.geometric,fit,calc,backgrounds,babel}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{pgfgantt}
+\usepackage[most]{tcolorbox}
+\usepackage{listings}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{lastpage}
+\usepackage{needspace}
+\usepackage[hidelinks]{hyperref}
+
+% ---------- Paleta ----------
+\definecolor{verdeespe}{HTML}{1B5E20}
+\definecolor{verdeclaro}{HTML}{E8F3EA}
+\definecolor{azulserie}{HTML}{2A78D6}
+\definecolor{naranjaserie}{HTML}{EB6834}
+\definecolor{azulcaja}{HTML}{EAF2FC}
+\definecolor{ambar}{HTML}{8A5A00}
+\definecolor{ambarclaro}{HTML}{FFF6E0}
+\definecolor{gristexto}{HTML}{5F5E5A}
+\definecolor{grisfondo}{HTML}{F6F6F4}
+\definecolor{rojo}{HTML}{B3261E}
+
+% ---------- Títulos y encabezados ----------
+\titleformat{\section}{\Large\bfseries\color{verdeespe}}{\thesection}{0.6em}{}
+\titleformat{\subsection}{\large\bfseries\color{verdeespe!85!black}}{\thesubsection}{0.6em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries}{\thesubsubsection}{0.6em}{}
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{2}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{gristexto}ISO/IEC 29110 · Perfil Básico}
+\fancyhead[R]{\small\color{gristexto}Caso SGI-Ferretería · NRC 36845}
+\fancyfoot[L]{\small\color{gristexto}Ariel Jara · ESPE 2026}
+\fancyfoot[R]{\small\color{gristexto}Página \thepage\ de \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\setlist[itemize]{leftmargin=1.4em,itemsep=2pt,topsep=4pt}
+\setlist[enumerate]{leftmargin=1.6em,itemsep=2pt,topsep=4pt}
+\captionsetup{font=small,labelfont={bf,color=verdeespe},skip=6pt}
+\renewcommand{\arraystretch}{1.18}
+\setlength{\tabcolsep}{5pt}
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+\newcolumntype{C}{>{\centering\arraybackslash}X}
+\newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
+
+% ---------- Símbolos de estado ----------
+\newcommand{\si}{\textcolor{verdeespe}{\ding{51}}}
+\newcommand{\no}{\textcolor{rojo}{\ding{55}}}
+\newcommand{\parcial}{\textcolor{ambar}{\ding{108}}}
+\newcommand{\tarea}[1]{\textsf{\textbf{\color{verdeespe}#1}}}
+\newcommand{\cod}[1]{\texttt{\small #1}}
+
+% ---------- Cajas ----------
+% Ficha de cada paso de la guía
+\newtcolorbox{ficha}[1]{enhanced,breakable,colback=verdeclaro,colframe=verdeespe,
+  boxrule=0.6pt,arc=2pt,left=6pt,right=6pt,top=4pt,bottom=4pt,
+  fonttitle=\bfseries\small,title={#1}}
+\newcommand{\campo}[2]{\textbf{#1:} & #2 \\}
+\newenvironment{tablaficha}{\small\noindent\tabularx{\linewidth}{@{}P{3.1cm}L@{}}}{\endtabularx}
+
+% Evidencia (producto de trabajo)
+\newtcolorbox{evidencia}[1]{enhanced,breakable,colback=white,colframe=azulserie,
+  boxrule=0.7pt,arc=2pt,left=6pt,right=6pt,top=5pt,bottom=5pt,
+  fonttitle=\bfseries\small,coltitle=white,colbacktitle=azulserie,
+  title={\ding{43}~Evidencia · #1}}
+
+% Consejo para replicar el paso
+\newtcolorbox{consejo}{enhanced,colback=ambarclaro,colframe=ambar,
+  boxrule=0.5pt,arc=2pt,left=6pt,right=6pt,top=4pt,bottom=4pt,
+  fonttitle=\bfseries\small,title={Cómo replicarlo en tu proyecto}}
+
+% ---------- Código ----------
+\definecolor{codfondo}{HTML}{FAFAF8}
+\lstdefinestyle{python}{
+  language=Python,
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{azulserie}\bfseries,
+  commentstyle=\color{gristexto}\itshape,
+  stringstyle=\color{verdeespe},
+  numbers=left,numberstyle=\tiny\color{gristexto},numbersep=6pt,
+  frame=single,rulecolor=\color{gristexto!40},backgroundcolor=\color{codfondo},
+  breaklines=true,showstringspaces=false,columns=fullflexible,keepspaces=true,
+  xleftmargin=1.6em,framexleftmargin=1.4em,
+  literate={á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+           {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+           {ñ}{{\~n}}1 {Ñ}{{\~N}}1 {ü}{{\"u}}1 {¿}{{?`}}1 {¡}{{!`}}1
+           {≤}{{$\leq$}}1 {→}{{$\rightarrow$}}1
+}
+\lstdefinestyle{consola}{
+  basicstyle=\ttfamily\scriptsize,frame=single,rulecolor=\color{gristexto!40},
+  backgroundcolor=\color{grisfondo},breaklines=true,columns=fullflexible,
+  keepspaces=true,showstringspaces=false,
+  literate={á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1 {ñ}{{\~n}}1
+}
+
+\hypersetup{pdftitle={Implementación del Perfil Básico ISO/IEC 29110 - SGI-Ferretería},
+  pdfauthor={Ariel Jara}}
+
+\begin{document}
+% =====================================================================
+%  PORTADA
+% =====================================================================
+\begin{titlepage}
+\thispagestyle{empty}
+\centering
+{\color{verdeespe}\rule{\linewidth}{2pt}}\\[0.6cm]
+{\Large\bfseries UNIVERSIDAD DE LAS FUERZAS ARMADAS ESPE}\\[0.25cm]
+{\large Departamento de Ciencias de la Computación}\\[0.1cm]
+{\large Carrera de Ingeniería de Software}\\[0.6cm]
+{\color{verdeespe}\rule{\linewidth}{0.6pt}}\\[2.2cm]
+
+{\large Aseguramiento de la Calidad de Software · NRC 36845}\\[0.3cm]
+{\normalsize Taller práctico: aplicación del Perfil Básico de ISO/IEC 29110}\\[1.4cm]
+
+{\huge\bfseries\color{verdeespe} Implementación del Perfil Básico\\[0.2cm] de ISO/IEC 29110 en un caso práctico}\\[0.7cm]
+{\Large Guía paso a paso e informe de evidencias}\\[0.4cm]
+{\large Proyecto: \textbf{SGI-Ferretería}, sistema web de gestión de inventario}\\[2.4cm]
+
+\begin{tabular}{@{}>{\bfseries}r l@{}}
+Estudiante: & Ariel Jara \\
+Roles asumidos: & GP, LT, AN, DIS, PR y ET \\
+Docente: & Ing. Diego Gamboa \\
+Fecha de entrega: & 23 de noviembre de 2026 \\
+\end{tabular}
+
+\vfill
+{\color{verdeespe}\rule{\linewidth}{0.6pt}}\\[0.2cm]
+{\small Sangolquí, Ecuador · 2026}
+\end{titlepage}
+
+% =====================================================================
+%  CONTROL DEL DOCUMENTO
+% =====================================================================
+\section*{Control del documento}
+\addcontentsline{toc}{section}{Control del documento}
+
+\begin{table}[H]
+\centering\small
+\begin{tabularx}{\linewidth}{@{}l l l L@{}}
+\toprule
+\textbf{Versión} & \textbf{Fecha} & \textbf{Autor} & \textbf{Cambios} \\
+\midrule
+0.1 & 17/11/2026 & Ariel Jara & Estructura del informe, Enunciado del trabajo y Plan del proyecto (sesión S1). \\
+0.2 & 19/11/2026 & Ariel Jara & Especificación de requisitos verificada y validada; diseño y trazabilidad. \\
+0.3 & 22/11/2026 & Ariel Jara & Construcción, pruebas, solicitudes de cambio SC-01 y SC-02, reporte de avance. \\
+1.0 & 23/11/2026 & Ariel Jara & Cierre (sesión S2): acta de aceptación, autoevaluación, reflexión y versión final. \\
+1.1 & 23/11/2026 & Ariel Jara & Revisión final: DEF-04 corregido (guía de operación); registro de horas, métricas y reporte de avance actualizados. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\noindent\textbf{Repositorio del proyecto:} \cod{sgi-ferreteria-aaj} (Git), etiqueta de entrega \cod{v0.1.0}.
+
+{\sloppy\noindent\textbf{Convención de nombres:} los productos de trabajo llevan el sufijo \cod{\_AAJ}; por ejemplo, \cod{PlanProyecto\_v1.1\_AAJ}.\par}
+
+\vspace{0.4cm}
+\tableofcontents
+\newpage
+
+% =====================================================================
+\section{Introducción}
+% =====================================================================
+
+\subsection{Propósito}
+Este informe documenta la aplicación del \textbf{Perfil Básico de ISO/IEC 29110} a un proyecto de software de tamaño reducido y, al mismo tiempo, funciona como una \textbf{guía paso a paso} que otra persona o equipo pequeño puede seguir para implantar la norma en su propio proyecto. Cada paso indica qué tarea de la norma se ejecuta, quién la realiza, qué entra, qué sale y cómo se comprueba que quedó bien; a continuación se muestra la evidencia real producida en el caso.
+
+\subsection{Objetivos}
+\textbf{Objetivo general.} Aplicar los procesos de Gestión del Proyecto (GP) e Implementación de Software (IS) del Perfil Básico de ISO/IEC 29110 al desarrollo del primer incremento de SGI-Ferretería y generar las evidencias de sus productos de trabajo.
+
+\noindent\textbf{Objetivos específicos.}
+\begin{enumerate}
+  \item Redactar y revisar el Enunciado del trabajo con el cliente (GP.1.1) y elaborar el Plan del proyecto con sus instrucciones de entrega (GP.1, GP.1.2).
+  \item Especificar, verificar y validar los requisitos con el cliente (IS.2).
+  \item Construir un incremento funcional con pruebas unitarias y de integración documentadas (IS.4–IS.5).
+  \item Tramitar solicitudes de cambio formales (GP.2–GP.3) y medir horas por categoría y porcentaje de retrabajo.
+  \item Cerrar el proyecto con un acta de aceptación (GP.4, IS.6) y autoevaluar el cumplimiento con el paquete de despliegue (DP).
+\end{enumerate}
+
+\subsection{Alcance y naturaleza del caso}
+El caso práctico es un \textbf{escenario simulado con fines académicos}: la Ferretería «El Perno» y su propietario son ficticios, y el rol de Cliente se representó con un guion de necesidades preparado para el taller. En cambio, \textbf{el software, las pruebas, la cobertura y la medición de rendimiento son reales}: el código está en el repositorio \cod{sgi-ferreteria-aaj} y todos los resultados de pruebas que se reportan pueden reproducirse con \cod{pytest}. El registro de horas, las reuniones y las decisiones del cliente corresponden al escenario simulado. El taller se trabajó de forma individual, por lo que un solo integrante asumió los seis roles del equipo; la sección~\ref{sec:roles} explica cómo se compensó la falta de revisión cruzada.
+
+\subsection{Cómo leer esta guía}
+La sección~\ref{sec:marco} resume la norma; la sección~\ref{sec:caso} presenta el caso y los roles; la sección~\ref{sec:guia} es la guía de doce pasos. Cada paso usa tres tipos de recuadro:
+
+\begin{itemize}
+  \item \colorbox{verdeclaro}{\textbf{Ficha del paso}}: tareas de la norma, rol, entradas, salidas y criterio de terminado.
+  \item \colorbox{azulcaja}{\textbf{Evidencia}}: el producto de trabajo generado en el caso SGI-Ferretería.
+  \item \colorbox{ambarclaro}{\textbf{Cómo replicarlo}}: recomendaciones para aplicar el paso en otro proyecto.
+\end{itemize}
+
+% =====================================================================
+\Needspace{12\baselineskip}
+\section{Marco de referencia: ISO/IEC 29110}\label{sec:marco}
+% =====================================================================
+
+\subsection{La norma y sus perfiles}
+ISO/IEC 29110 define perfiles de ciclo de vida para \textbf{entidades muy pequeñas} (VSE, por sus siglas en inglés): empresas, departamentos o proyectos de hasta 25 personas~\cite{laporte2016}. Agrupa los perfiles genéricos en cuatro niveles incrementales: \emph{Entrada}, \emph{Básico}, \emph{Intermedio} y \emph{Avanzado}. El \textbf{Perfil Básico} está pensado para una entidad que desarrolla un proyecto a la vez y se describe en la guía de gestión e ingeniería ISO/IEC 29110-5-1-2, publicada como informe técnico en 2011~\cite{iso2011} y como norma internacional en 2025~\cite{iso2025}.
+
+El perfil no impone un ciclo de vida concreto: puede ejecutarse en cascada, de forma iterativa o con prácticas ágiles, siempre que se produzcan y controlen los productos de trabajo definidos. Para facilitar su adopción existen los \textbf{paquetes de despliegue} (DP, \emph{Deployment Packages}): conjuntos de plantillas, ejemplos, listas de verificación y guías para implantar cada actividad~\cite{etsdp}.
+
+\subsection{Procesos del Perfil Básico}
+El perfil consta de dos procesos que se ejecutan en paralelo e intercambian productos de trabajo (figura~\ref{fig:procesos}).
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  font=\small,
+  act/.style={draw=verdeespe,fill=verdeclaro,rounded corners=2pt,minimum width=2.15cm,minimum height=0.85cm,align=center,font=\footnotesize},
+  acti/.style={draw=azulserie,fill=azulcaja,rounded corners=2pt,minimum width=1.75cm,minimum height=0.85cm,align=center,font=\footnotesize},
+  prod/.style={draw=gristexto,fill=white,minimum width=2.2cm,minimum height=0.7cm,align=center,font=\scriptsize},
+  flecha/.style={-{Stealth[length=2.2mm]},thick,gristexto}]
+  % GP
+  \node[act] (gp1) {GP.1\\Planificación};
+  \node[act,right=0.45cm of gp1] (gp2) {GP.2\\Ejecución\\del plan};
+  \node[act,right=0.45cm of gp2] (gp3) {GP.3\\Evaluación\\y control};
+  \node[act,right=0.45cm of gp3] (gp4) {GP.4\\Cierre};
+  \draw[flecha] (gp1)--(gp2); \draw[flecha] (gp2)--(gp3); \draw[flecha] (gp3)--(gp4);
+  \draw[flecha] (gp3.north) -- ++(0,0.35) -| node[pos=0.25,above,font=\scriptsize]{acciones correctivas} (gp2.north);
+  \node[fit=(gp1)(gp4),draw=verdeespe,dashed,inner sep=7pt,label={[font=\small\bfseries,text=verdeespe]left:\rotatebox{90}{GP}}] (GP) {};
+  % IS
+  \node[acti,below=2.0cm of gp1.south west,anchor=north west] (is1) {IS.1\\Inicio};
+  \node[acti,right=0.22cm of is1] (is2) {IS.2\\Requisitos};
+  \node[acti,right=0.22cm of is2] (is3) {IS.3\\Arquitectura\\y diseño};
+  \node[acti,right=0.22cm of is3] (is4) {IS.4\\Construcción};
+  \node[acti,right=0.22cm of is4] (is5) {IS.5\\Integración\\y pruebas};
+  \node[acti,right=0.22cm of is5] (is6) {IS.6\\Entrega};
+  \foreach \a/\b in {is1/is2,is2/is3,is3/is4,is4/is5,is5/is6} \draw[flecha] (\a)--(\b);
+  \node[fit=(is1)(is6),draw=azulserie,dashed,inner sep=7pt,label={[font=\small\bfseries,text=azulserie]left:\rotatebox{90}{IS}}] (IS) {};
+  % Productos
+  \node[prod,above=0.75cm of gp1] (sow) {Enunciado del trabajo\\(entrada del cliente)};
+  \node[prod,below=0.75cm of is6] (conf) {Configuración del software\\(entrega al cliente)};
+  \draw[flecha] (sow) -- (gp1);
+  \draw[flecha] (is6) -- (conf);
+  \draw[flecha,azulserie] ([xshift=-0.6cm]GP.south) -- node[left,font=\scriptsize,align=right]{Plan del proyecto} ([xshift=-0.6cm]GP.south|-IS.north);
+  \draw[flecha,verdeespe] ([xshift=0.6cm]IS.north) -- node[right,font=\scriptsize,align=left]{Reporte de avance,\\solicitudes de cambio} ([xshift=0.6cm]IS.north|-GP.south);
+\end{tikzpicture}
+\caption{Procesos y actividades del Perfil Básico y los productos de trabajo que los conectan (elaboración propia a partir de ISO/IEC 29110-5-1-2).}
+\label{fig:procesos}
+\end{figure}
+
+\begin{itemize}
+  \item \textbf{Gestión del Proyecto (GP).} Establece y lleva a cabo de forma sistemática las tareas del proyecto para cumplir sus objetivos en calidad, tiempo y costo. Actividades: GP.1 Planificación, GP.2 Ejecución del plan, GP.3 Evaluación y control, y GP.4 Cierre.
+  \item \textbf{Implementación de Software (IS).} Realiza de forma sistemática el análisis, diseño, construcción, integración y pruebas del software nuevo o modificado según los requisitos. Actividades: IS.1 Inicio, IS.2 Análisis de requisitos, IS.3 Arquitectura y diseño detallado, IS.4 Construcción, IS.5 Integración y pruebas, e IS.6 Entrega del producto.
+\end{itemize}
+
+\subsection{Roles}
+\begin{table}[H]
+\centering\small
+\caption{Roles del Perfil Básico.}
+\label{tab:roles-norma}
+\begin{tabularx}{\linewidth}{@{}l l L@{}}
+\toprule
+\textbf{Sigla} & \textbf{Rol} & \textbf{Responsabilidad principal} \\
+\midrule
+CL  & Cliente            & Define necesidades, revisa el Enunciado del trabajo, valida requisitos, aprueba cambios y acepta el producto. \\
+GP  & Gestor del proyecto & Planifica, asigna recursos, controla avance, gestiona cambios y riesgos y cierra el proyecto. \\
+LT  & Líder técnico       & Dirige las decisiones técnicas, el diseño y la verificación de productos técnicos. \\
+AN  & Analista            & Educe, especifica y verifica los requisitos; prepara la documentación de usuario. \\
+DIS & Diseñador           & Elabora la arquitectura, el diseño detallado y los casos de prueba. \\
+PR  & Programador         & Construye componentes, escribe y ejecuta pruebas unitarias y corrige defectos. \\
+ET  & Equipo de trabajo   & Conjunto de roles técnicos; participa en revisiones y pruebas de integración. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Productos de trabajo exigidos por el taller}
+La tabla~\ref{tab:mapa-evidencias} relaciona cada actividad del taller con la tarea de la norma, el producto de trabajo que la evidencia y el lugar del informe donde se encuentra.
+
+\begin{table}[H]
+\centering\small
+\caption{Mapa de evidencias del taller~\cite{taller}.}
+\label{tab:mapa-evidencias}
+\begin{tabularx}{\linewidth}{@{}l P{4.3cm} l L l@{}}
+\toprule
+\textbf{Sesión} & \textbf{Actividad del taller} & \textbf{Norma} & \textbf{Evidencia} & \textbf{Sección} \\
+\midrule
+S1 & Enunciado del trabajo con el cliente & GP.1.1 & Enunciado del trabajo [revisado] & \ref{paso:sow} \\
+S1 & Plan con instrucciones de entrega & GP.1, GP.1.2 & Plan del proyecto v1.1 & \ref{paso:plan} \\
+S1 & Requisitos verificados y validados & IS.2 & Especificación [validada]; Resultado de validación & \ref{paso:req} \\
+S2 & Incremento y pruebas unitarias & IS.4 & Componentes en el repositorio; informe de pruebas & \ref{paso:con}, \ref{paso:int} \\
+S2 & Solicitud de cambio & GP.2, GP.3 & SC-01 [aceptada], SC-02 [rechazada] & \ref{paso:sc} \\
+S2 & Horas por categoría y \% de retrabajo & GP.2, GP.3 & Reporte de avance con métricas & \ref{paso:met} \\
+S2 & Cierre y presentación & GP.4, IS.6 & Acta de aceptación; autoevaluación con el DP & \ref{paso:ent}--\ref{paso:auto} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% =====================================================================
+\section{Caso práctico: SGI-Ferretería}\label{sec:caso}
+% =====================================================================
+
+\subsection{Organización cliente y problema}
+La Ferretería «El Perno» (Sangolquí, cantón Rumiñahui) es un negocio familiar con dos cajas, una bodega y cerca de 1\,200 artículos de herramientas, plomería, electricidad, pintura y fijación. Hoy controla su inventario con un cuaderno y una hoja de cálculo que se actualiza al final del día. Esto provoca tres problemas que el propietario describe así:
+\begin{enumerate}
+  \item \textbf{Quiebres de stock}: se descubre que un producto se agotó cuando un cliente lo pide.
+  \item \textbf{Diferencias de inventario}: no queda registro de quién sacó mercadería ni cuándo.
+  \item \textbf{Pedidos a proveedores a ciegas}: no hay una lista confiable de lo que hay que reponer.
+\end{enumerate}
+
+\subsection{Solución propuesta}
+\textbf{SGI-Ferretería} es un sistema web de gestión de inventario que se construye por incrementos. El \textbf{incremento 1}, objeto de este taller, entrega el núcleo del inventario como API REST: catálogo de productos, entradas y salidas con responsable, alertas de stock bajo, búsqueda, valor del inventario, kárdex por producto y, por la solicitud de cambio SC-01, la exportación a CSV de los productos por reponer. El incremento 2 (fuera de alcance) añadirá la interfaz web, usuarios con roles y ventas.
+
+\begin{table}[H]
+\centering\small
+\caption{Tecnología del incremento 1.}
+\begin{tabularx}{\linewidth}{@{}l L@{}}
+\toprule
+\textbf{Componente} & \textbf{Elección y motivo} \\
+\midrule
+Lenguaje & Python 3.13: legible, con biblioteca estándar suficiente para CSV, \cod{Decimal} y normalización Unicode. \\
+API web & FastAPI: validación automática de datos y documentación OpenAPI sin código extra. \\
+Pruebas & \cod{pytest} y \cod{pytest-cov}: parametrización de casos y medición de cobertura de sentencias y ramas. \\
+Persistencia & Repositorio en memoria en el incremento 1; PostgreSQL previsto para el incremento 2. \\
+Gestión & Git (repositorio y líneas base), tablero Kanban y hoja de cálculo de horas. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Equipo y asignación de roles}\label{sec:roles}
+Al trabajar de forma individual, el estudiante asumió todos los roles técnicos y de gestión. El rol de Cliente lo representa el propietario ficticio de la ferretería, Sr. Jorge Paredes, a partir del guion de necesidades.
+
+\begin{table}[H]
+\centering\small
+\caption{Matriz de responsabilidades por actividad (R = responsable, A = aprueba, P = participa).}
+\label{tab:raci}
+\begin{tabularx}{\linewidth}{@{}L c c c c c c c@{}}
+\toprule
+\textbf{Actividad} & \textbf{CL} & \textbf{GP} & \textbf{LT} & \textbf{AN} & \textbf{DIS} & \textbf{PR} & \textbf{ET} \\
+\midrule
+GP.1 Planificación               & A & R & P &   &   &   & P \\
+GP.2–GP.3 Ejecución y control    & P & R & P &   &   &   & P \\
+GP.4 Cierre                      & A & R &   &   &   &   &   \\
+IS.1 Inicio                      &   & P & R &   &   &   & P \\
+IS.2 Requisitos                  & A & P & P & R &   &   & P \\
+IS.3 Arquitectura y diseño       &   &   & A &   & R &   & P \\
+IS.4 Construcción                &   &   & A &   &   & R & P \\
+IS.5 Integración y pruebas       &   &   & A &   & P & R & P \\
+IS.6 Entrega                     & A & R & P &   &   &   & P \\
+\midrule
+\multicolumn{8}{@{}l}{\textit{Todos los roles salvo CL: Ariel Jara. CL: Sr. Jorge Paredes (personaje del caso).}} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\noindent\textbf{Compensación por la falta de revisión cruzada.} Cuando una sola persona produce y verifica, la verificación pierde independencia. Para mitigarlo se aplicaron tres reglas: (1) toda verificación se hizo con una \textbf{lista de chequeo escrita} y no de memoria; (2) se dejó al menos una noche entre producir un documento y verificarlo; y (3) las pruebas automatizadas se escribieron a partir de los \textbf{criterios de aceptación} de la especificación, no a partir del código.
+% =====================================================================
+\section{Guía paso a paso de implementación}\label{sec:guia}
+% =====================================================================
+La figura~\ref{fig:ruta} muestra la ruta de doce pasos seguida en el caso. Los pasos 1 a 4 corresponden a la sesión S1 y a su trabajo autónomo; los pasos 5 a 12, a la sesión S2 y al trabajo autónomo previo a ella.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[font=\scriptsize,
+  p/.style={circle,draw=verdeespe,fill=verdeclaro,minimum size=0.62cm,inner sep=0pt,font=\footnotesize\bfseries},
+  q/.style={circle,draw=azulserie,fill=azulcaja,minimum size=0.62cm,inner sep=0pt,font=\footnotesize\bfseries},
+  t/.style={align=center,text width=1.95cm,font=\scriptsize},
+  fl/.style={-{Stealth[length=1.6mm]},gristexto}]
+\foreach \n/\txt [count=\i] in {1/Entorno\\IS.1,2/Enunciado\\GP.1.1,3/Plan\\GP.1,4/Requisitos\\IS.2}{
+  \node[p] (a\n) at ({(\i-1)*2.45},0) {\n};
+  \node[t,below=1pt of a\n] {\txt};
+}
+\foreach \n/\txt [count=\i] in {5/Diseño\\IS.3,6/Construcción\\IS.4}{
+  \node[q] (a\n) at ({(\i+3)*2.45},0) {\n};
+  \node[t,below=1pt of a\n] {\txt};
+}
+\foreach \n/\txt [count=\i] in {7/Integración\\IS.5,8/Cambios\\GP.2--GP.3,9/Métricas\\GP.3,10/Entrega\\IS.6,11/Cierre\\GP.4,12/Autoevaluación\\DP}{
+  \node[q] (a\n) at ({(\i-1)*2.45},-2.3) {\n};
+  \node[t,below=1pt of a\n] {\txt};
+}
+\foreach \a/\b in {1/2,2/3,3/4,4/5,5/6,7/8,8/9,9/10,10/11,11/12} \draw[fl] (a\a)--(a\b);
+\draw[fl] (a6.east) -- ++(0.75,0) |- (-0.85,-1.35) |- (a7.west);
+\node[p,minimum size=0.3cm] (l1) at (2.6,-3.75) {};
+\node[anchor=west,font=\scriptsize] at (l1.east) {Sesión S1 y trabajo autónomo};
+\node[q,minimum size=0.3cm] (l2) at (7.4,-3.75) {};
+\node[anchor=west,font=\scriptsize] at (l2.east) {Sesión S2 y trabajo autónomo};
+\end{tikzpicture}
+\caption{Ruta de implementación seguida en el caso SGI-Ferretería.}
+\label{fig:ruta}
+\end{figure}
+
+% ---------------------------------------------------------------------
+\subsection{Paso 1. Preparar el entorno de trabajo}\label{paso:entorno}
+% ---------------------------------------------------------------------
+\begin{ficha}{Ficha del paso 1}
+\begin{tablaficha}
+\campo{Tareas de la norma}{GP.1 (establecer el repositorio del proyecto según la estrategia de control de versiones) e IS.1 (revisar el plan con el equipo y preparar el entorno de implementación).}
+\campo{Rol}{GP (repositorio y tablero), LT (entorno técnico).}
+\campo{Entradas}{Herramientas sugeridas por el taller.}
+\campo{Salidas}{Repositorio Git, tablero Kanban, plantillas de productos de trabajo y hoja de registro de horas.}
+\campo{Terminado cuando}{El repositorio tiene la estructura acordada, el tablero tiene una tarjeta por tarea del plan y la hoja de horas tiene las categorías definidas.}
+\end{tablaficha}
+\end{ficha}
+
+\begin{evidencia}{Repositorio y herramientas}
+\begin{itemize}
+  \item \textbf{Repositorio} \cod{sgi-ferreteria-aaj} con la estructura \cod{src/inventario/} (componentes), \cod{tests/} (pruebas), \cod{docs/} (evidencias de ejecución) y \cod{README.md} (alcance, instrucciones de ejecución y estrategia de versiones).
+  \item \textbf{Tablero Kanban} con las columnas \emph{Por hacer → En curso → En verificación → Hecho}. La columna «En verificación» obliga a pasar cada producto por su lista de chequeo antes de cerrarlo.
+  \item \textbf{Hoja de horas} con siete categorías fijas: Gestión (GP), Requisitos (REQ), Diseño (DIS), Construcción (CON), Integración y pruebas (INT), Entrega (ENT) y \textbf{Retrabajo (RET)}. El retrabajo se registra aparte desde el primer día para poder medirlo (paso~9).
+  \item \textbf{Convención de commits}: cada mensaje empieza con la tarea de la norma que lo origina, por ejemplo \cod{IS.4.5 Corrige DEF-01...}.
+\end{itemize}
+\end{evidencia}
+
+\begin{consejo}
+Define la categoría «Retrabajo» antes de empezar. Si se decide al final, las horas de corrección quedan mezcladas con las de construcción y el porcentaje de retrabajo ya no se puede calcular con honestidad.
+\end{consejo}
+
+% ---------------------------------------------------------------------
+\subsection{Paso 2. Redactar y revisar el Enunciado del trabajo}\label{paso:sow}
+% ---------------------------------------------------------------------
+\begin{ficha}{Ficha del paso 2}
+\begin{tablaficha}
+\campo{Tarea de la norma}{GP.1.1 Revisar el Enunciado del trabajo.}
+\campo{Rol}{GP con el CL; participa LT.}
+\campo{Entradas}{Necesidades expresadas por el cliente (entrevista guiada).}
+\campo{Salidas}{Enunciado del trabajo [revisado].}
+\campo{Terminado cuando}{El cliente y el GP coinciden en propósito, alcance, entregables, fecha y restricciones, y las observaciones de la revisión están cerradas.}
+\end{tablaficha}
+\end{ficha}
+
+\noindent\textbf{Procedimiento seguido.}
+\begin{enumerate}
+  \item Entrevista de 20 minutos con el cliente usando cinco preguntas: qué problema se quiere resolver, quién usará el sistema, qué debe hacer primero, qué no debe hacer y para cuándo lo necesita.
+  \item Redacción del borrador v0.1 con la plantilla del paquete de despliegue de Gestión de Proyectos.
+  \item Revisión conjunta con la lista de chequeo que aparece al final de la evidencia E1; las observaciones se corrigieron en la misma sesión y se emitió la v1.0.
+\end{enumerate}
+
+\begin{evidencia}{E1 · Enunciado del trabajo [revisado] · \cod{EnunciadoTrabajo\_v1.0\_AAJ}}
+\small
+\begin{tabularx}{\linewidth}{@{}P{3.0cm}L@{}}
+\toprule
+\textbf{Cliente} & Ferretería «El Perno», Sangolquí. Representante: Sr. Jorge Paredes, propietario. \\
+\textbf{Proveedor} & Ariel Jara (equipo de una persona). \\
+\textbf{Propósito} & Reducir los quiebres de stock y las diferencias de inventario mediante un registro en línea de productos y movimientos. \\
+\textbf{Descripción del producto} & Sistema web SGI-Ferretería, incremento 1: servicio de inventario expuesto como API REST. \\
+\textbf{Alcance incluido} & Catálogo de productos; entradas y salidas con responsable; alertas de stock bajo; búsqueda; valor del inventario; historial de movimientos. \\
+\textbf{Fuera de alcance} & Interfaz web, usuarios y roles, ventas y facturación electrónica (incremento 2 o proyectos posteriores). \\
+\textbf{Entregables} & Software (código y pruebas) etiquetado en Git; especificación de requisitos validada; manual de usuario de la API; guía de operación; documentación de mantenimiento; informe del proyecto. \\
+\textbf{Fecha de entrega} & 23 de noviembre de 2026 (sesión S2). \\
+\textbf{Restricciones} & Una persona; esfuerzo máximo de 24 horas; solo herramientas gratuitas; sin datos reales de clientes. \\
+\textbf{Supuestos} & El cliente está disponible para validar requisitos el 19/11 y para la entrega el 23/11. \\
+\bottomrule
+\end{tabularx}
+
+\vspace{0.3cm}
+\begin{tabularx}{\linewidth}{@{}l L c L@{}}
+\multicolumn{4}{@{}l}{\textbf{Registro de revisión (GP.1.1)}} \\
+\toprule
+\textbf{N.º} & \textbf{Criterio de revisión} & \textbf{Resultado} & \textbf{Observación y acción} \\
+\midrule
+1 & El propósito expresa un problema del negocio, no una solución técnica & \si & — \\
+2 & El alcance distingue lo incluido de lo excluido & \parcial & No se excluían las ventas; se añadió «Fuera de alcance». \\
+3 & Cada entregable tiene responsable y formato & \si & — \\
+4 & La fecha de entrega es explícita & \si & — \\
+5 & Las restricciones de esfuerzo y costo son medibles & \parcial & «Poco tiempo» se cambió por «máximo 24 horas». \\
+6 & El cliente leyó y aceptó el documento & \si & Aceptado verbalmente en S1; v1.0 emitida. \\
+\bottomrule
+\end{tabularx}
+\end{evidencia}
+
+\begin{consejo}
+Escribe siempre la sección «Fuera de alcance». En la revisión es la que más discusión genera y es la que después permite rechazar con argumentos una solicitud de cambio (véase SC-02 en el paso~8).
+\end{consejo}
+
+% ---------------------------------------------------------------------
+\subsection{Paso 3. Elaborar el Plan del proyecto con instrucciones de entrega}\label{paso:plan}
+% ---------------------------------------------------------------------
+\begin{ficha}{Ficha del paso 3}
+\begin{tablaficha}
+\campo{Tareas de la norma}{GP.1 Planificación: GP.1.2 (definir con el cliente las instrucciones de entrega) y las tareas que identifican actividades, duración, recursos, roles, cronograma, esfuerzo, costo, riesgos y estrategia de control de versiones, verifican el plan y lo someten a la aceptación del cliente.}
+\campo{Rol}{GP; participan LT y ET; aprueba CL.}
+\campo{Entradas}{Enunciado del trabajo [revisado].}
+\campo{Salidas}{Plan del proyecto [verificado] [aceptado], con historial de versiones.}
+\campo{Terminado cuando}{Cada entregable del enunciado tiene instrucciones de entrega, tareas, fechas y responsable, y el cliente aceptó el plan.}
+\end{tablaficha}
+\end{ficha}
+
+\Needspace{6\baselineskip}
+\begin{evidencia}{E2 · Plan del proyecto · \cod{PlanProyecto\_v1.1\_AAJ}}
+\small
+\textbf{a) Descripción, objetivos y alcance.} Se toman del Enunciado del trabajo v1.0. Objetivo medible del incremento: \emph{entregar el 23/11/2026 un servicio de inventario con todas sus pruebas aprobadas y cobertura de pruebas $\geq 80$\,\%}.
+
+\vspace{0.2cm}
+\textbf{b) Instrucciones de entrega (GP.1.2).}
+
+\begin{tabularx}{\linewidth}{@{}P{3.3cm} P{3.0cm} l L@{}}
+\toprule
+\textbf{Entregable} & \textbf{Formato y medio} & \textbf{Fecha} & \textbf{Criterio de aceptación} \\
+\midrule
+Software (incremento 1) & Repositorio Git, etiqueta \cod{v0.1.0} & 23/11 & 100\,\% de pruebas aprobadas; cobertura $\geq 80$\,\%. \\
+Especificación de requisitos & Sección del informe (PDF) & 19/11 & Verificada y validada por el cliente. \\
+Manual de usuario de la API & \cod{README.md} y documentación OpenAPI & 23/11 & Permite ejecutar cada caso de uso sin ayuda. \\
+Guía de operación & \cod{README.md} & 23/11 & Instalación y arranque reproducibles. \\
+Documentación de mantenimiento & \cod{README.md} y comentarios de trazabilidad & 23/11 & Estructura, convenciones y cómo agregar pruebas. \\
+Informe del proyecto & PDF y fuente \LaTeX{} en el aula virtual & 23/11 & Contiene todas las evidencias del taller. \\
+\bottomrule
+\end{tabularx}
+
+\vspace{0.3cm}
+\textbf{c) Tareas, esfuerzo estimado y responsables.}
+
+\begin{tabularx}{\linewidth}{@{}l L l c@{}}
+\toprule
+\textbf{Cat.} & \textbf{Tareas} & \textbf{Rol} & \textbf{Horas (v1.1)} \\
+\midrule
+GP  & Enunciado, plan, seguimiento, reporte de avance, cambios y cierre & GP & 4,0 \\
+REQ & Especificar, verificar y validar requisitos & AN & 3,0 \\
+DIS & Arquitectura, casos de prueba y registro de trazabilidad & DIS & 2,0 \\
+CON & Construir componentes RF-01 a RF-07 y pruebas unitarias & PR & 6,0 \\
+INT & API REST, RF-08 (SC-01) y pruebas de integración & PR, ET & 3,5 \\
+ENT & Manual de usuario, guía de operación, mantenimiento y entrega & GP, LT & 2,5 \\
+RET & Reserva para corrección de defectos & ET & 1,0 \\
+\midrule
+\multicolumn{3}{@{}r}{\textbf{Total planificado}} & \textbf{22,0} \\
+\bottomrule
+\end{tabularx}
+
+\vspace{0.3cm}
+\textbf{d) Cronograma.}
+
+\begin{center}
+\begin{ganttchart}[
+  hgrid,vgrid,
+  x unit=1.25cm,y unit chart=0.5cm,
+  time slot format=isodate,
+  title label font=\scriptsize\bfseries,
+  bar label font=\scriptsize,
+  milestone label font=\scriptsize\bfseries,
+  bar/.append style={fill=verdeespe!70,draw=verdeespe},
+  group/.append style={fill=azulserie},
+  milestone/.append style={fill=naranjaserie,draw=naranjaserie,xshift=-0.625cm},
+  bar height=0.55,
+  ]{2026-11-16}{2026-11-23}
+  \gantttitlecalendar*{2026-11-16}{2026-11-23}{day} \\
+  \ganttbar{GP.1 Planificación}{2026-11-16}{2026-11-17} \\
+  \ganttbar{IS.1 Inicio}{2026-11-16}{2026-11-16} \\
+  \ganttmilestone{S1: plan aceptado}{2026-11-17} \\
+  \ganttbar{IS.2 Requisitos}{2026-11-18}{2026-11-19} \\
+  \ganttbar{IS.3 Diseño}{2026-11-19}{2026-11-19} \\
+  \ganttbar{IS.4 Construcción}{2026-11-20}{2026-11-21} \\
+  \ganttbar{IS.5 Integración y pruebas}{2026-11-22}{2026-11-22} \\
+  \ganttbar{GP.2–GP.3 Seguimiento}{2026-11-18}{2026-11-23} \\
+  \ganttbar{IS.6 Entrega}{2026-11-22}{2026-11-23} \\
+  \ganttbar{GP.4 Cierre}{2026-11-23}{2026-11-23} \\
+  \ganttmilestone{S2: entrega y aceptación}{2026-11-23}
+\end{ganttchart}
+\end{center}
+
+\textbf{e) Recursos.} Humanos: una persona con seis roles, disponibilidad de 3 a 4 horas diarias. Materiales: computador portátil, Python 3.13, FastAPI, pytest y pytest-cov, Git con repositorio remoto, tablero Kanban, hoja de cálculo y Overleaf. Todas las herramientas son gratuitas.
+
+\textbf{f) Costo estimado (referencial).} 22,0 h $\times$ USD 8,00/h = \textbf{USD 176,00}. Licencias e infraestructura: USD 0,00.
+
+\vspace{0.2cm}
+\textbf{g) Riesgos.} Probabilidad (P) e impacto (I) en escala de 1 a 3; exposición = P $\times$ I.
+
+\begin{tabularx}{\linewidth}{@{}l L c c c L@{}}
+\toprule
+\textbf{ID} & \textbf{Riesgo} & \textbf{P} & \textbf{I} & \textbf{Exp.} & \textbf{Respuesta} \\
+\midrule
+R1 & Disponibilidad limitada del único integrante (otras materias) & 3 & 3 & 9 & Priorizar requisitos «Debe»; bloques fijos de trabajo; reserva de 1 h. \\
+R2 & El cliente cambia requisitos durante la construcción & 2 & 2 & 4 & Todo cambio entra por Solicitud de cambio con análisis de impacto. \\
+R3 & Pérdida del repositorio o de evidencias & 1 & 3 & 3 & Respaldo en remoto al final de cada día de trabajo. \\
+R4 & Estimación optimista por falta de datos históricos & 2 & 2 & 4 & Registrar horas reales desde el día 1 para recalibrar. \\
+R5 & Autoverificación sin independencia (equipo de uno) & 3 & 2 & 6 & Listas de chequeo escritas; verificar al día siguiente; pruebas desde criterios de aceptación. \\
+\bottomrule
+\end{tabularx}
+
+\vspace{0.3cm}
+\textbf{h) Estrategia de control de versiones.} Rama única \cod{main}; commits identificados con la tarea de la norma; líneas base marcadas con etiquetas (\cod{lb-IS4} al terminar la construcción y \cod{v0.1.0} en la entrega); documentos con versión en el nombre (\cod{\_v1.0\_AAJ}); respaldo diario en remoto. Ningún producto de trabajo entra en línea base sin pasar por «En verificación».
+
+\vspace{0.2cm}
+\textbf{i) Historial de versiones del plan.}
+
+\begin{tabularx}{\linewidth}{@{}l l L l@{}}
+\toprule
+\textbf{Versión} & \textbf{Fecha} & \textbf{Cambio} & \textbf{Estado} \\
+\midrule
+0.1 & 17/11 & Borrador inicial (21,0 h). & Borrador \\
+1.0 & 17/11 & Tras la verificación: se añadieron criterios de aceptación a las instrucciones de entrega y el riesgo R4. & Aceptado por CL \\
+1.1 & 21/11 & SC-01 aprobada: RF-08 añadido (+1,0 h en INT); la fecha de entrega no cambia. & Aceptado por CL \\
+\bottomrule
+\end{tabularx}
+\end{evidencia}
+
+\begin{consejo}
+Una tabla de instrucciones de entrega con la columna «Criterio de aceptación» ahorra discusiones en el cierre: el acta (paso~11) solo comprueba fila por fila lo que aquí se acordó.
+\end{consejo}
+
+% ---------------------------------------------------------------------
+\subsection{Paso 4. Especificar, verificar y validar los requisitos}\label{paso:req}
+% ---------------------------------------------------------------------
+\begin{ficha}{Ficha del paso 4}
+\begin{tablaficha}
+\campo{Actividad de la norma}{IS.2 Análisis de requisitos de software: asignar tareas, documentar la especificación, verificarla, validarla con el cliente e incorporarla a la línea base.}
+\campo{Rol}{AN (especifica y verifica); CL (valida); GP y LT participan.}
+\campo{Entradas}{Enunciado del trabajo [revisado]; Plan del proyecto [aceptado].}
+\campo{Salidas}{Especificación de requisitos [verificada] [validada]; Resultados de verificación; Resultado de validación.}
+\campo{Terminado cuando}{Cada requisito es identificable, verificable y tiene criterio de aceptación, y el cliente firmó el resultado de validación.}
+\end{tablaficha}
+\end{ficha}
+
+\begin{evidencia}{E3a · Especificación de requisitos [validada] · \cod{EspecRequisitos\_v1.2\_AAJ}}
+\small
+\textbf{Requisitos funcionales} (prioridad MoSCoW: D = Debe, Dd = Debería, P = Podría).
+
+\begin{tabularx}{\linewidth}{@{}l P{3.6cm} c L@{}}
+\toprule
+\textbf{ID} & \textbf{Requisito} & \textbf{Prior.} & \textbf{Criterio de aceptación} \\
+\midrule
+RF-01 & Registrar producto & D & Código único (sin distinguir mayúsculas), nombre obligatorio, precio $> 0$, stock mínimo entero $\geq 0$; stock inicial 0. \\
+RF-02 & Registrar entrada de mercadería & D & Cantidad entera $> 0$; responsable obligatorio; aumenta el stock y queda un movimiento con fecha y hora. \\
+RF-03 & Registrar salida de mercadería & D & Igual que RF-02; se rechaza si la cantidad supera el stock (el stock nunca es negativo). \\
+RF-04 & Alertas de stock bajo & D & Lista los productos con \textbf{stock $\leq$ stock mínimo}, ordenados por código. \\
+RF-05 & Buscar productos & D & Coincidencia parcial en código o nombre, \textbf{sin distinguir mayúsculas ni tildes}. \\
+RF-06 & Valor del inventario & Dd & $\sum$ (stock $\times$ precio) con aritmética decimal exacta. \\
+RF-07 & Kárdex por producto & Dd & Movimientos del producto en orden cronológico. \\
+RF-08 & Exportar stock bajo a CSV (SC-01) & Dd & Archivo separado por «;» con cabecera y columna «faltante». \\
+\bottomrule
+\end{tabularx}
+
+\vspace{0.25cm}
+\textbf{Requisitos no funcionales.}
+
+\begin{tabularx}{\linewidth}{@{}l P{3.6cm} L@{}}
+\toprule
+\textbf{ID} & \textbf{Requisito} & \textbf{Criterio de aceptación} \\
+\midrule
+RNF-01 & Integridad de datos & Una operación rechazada no modifica stock ni kárdex. \\
+RNF-02 & Rendimiento de la búsqueda & $< 1$ s con 5\,000 productos registrados. \\
+RNF-03 & Mantenibilidad & Cobertura de pruebas automatizadas $\geq 80$\,\% del módulo de inventario. \\
+RNF-04 & Interoperabilidad & API REST con respuestas JSON y códigos HTTP estándar (201, 404, 409, 422). \\
+\bottomrule
+\end{tabularx}
+\end{evidencia}
+
+\noindent\textbf{Verificación (lista de chequeo del analista).} La especificación v1.0 se revisó con cinco criterios: identificador único, redacción sin ambigüedad, criterio de aceptación verificable, consistencia con el enunciado y prioridad asignada. Se encontraron tres defectos:
+
+\begin{evidencia}{E3b · Resultados de verificación de requisitos}
+\small
+\begin{tabularx}{\linewidth}{@{}l l L L c@{}}
+\toprule
+\textbf{ID} & \textbf{Req.} & \textbf{Defecto} & \textbf{Corrección} & \textbf{Estado} \\
+\midrule
+V-01 & RF-04 & «Stock bajo» no estaba definido. & Se define como stock $\leq$ stock mínimo. & \si \\
+V-02 & RF-05 & No decía si la búsqueda distingue mayúsculas o tildes («Tubería» y «tuberia»). & Se exige que no las distinga. & \si \\
+V-03 & RNF-02 & «La búsqueda debe ser rápida» no era medible. & $< 1$ s con 5\,000 productos. & \si \\
+\bottomrule
+\end{tabularx}
+\end{evidencia}
+
+\noindent\textbf{Validación con el cliente.} El 19/11 se recorrió cada requisito con el cliente usando ejemplos concretos (por ejemplo: «si quedan 5 martillos y el mínimo es 5, ¿debe aparecer la alerta?»).
+
+\begin{evidencia}{E3c · Resultado de validación · 19/11/2026}
+\small
+\begin{tabularx}{\linewidth}{@{}l L c@{}}
+\toprule
+\textbf{Requisito} & \textbf{Resultado y comentario del cliente} & \textbf{Estado} \\
+\midrule
+RF-01 a RF-06 & Coinciden con la necesidad. El ejemplo de los 5 martillos confirmó la regla «$\leq$». & Aprobado \\
+— & \textbf{Observación:} «Cuando falta mercadería necesito ver quién la sacó y cuándo». Se añade RF-07 (kárdex). & Incorporado \\
+RNF-01 a RNF-04 & Aceptados. & Aprobado \\
+Interfaz web & Se confirma que queda para el incremento 2. & Diferido \\
+\midrule
+\multicolumn{3}{@{}p{\linewidth}@{}}{\textbf{Conclusión:} especificación \textbf{validada} en la versión 1.1 y puesta en línea base. La v1.2 añade RF-08 por SC-01.} \\
+\multicolumn{3}{@{}l}{Firmas: \rule{4.2cm}{0.4pt} Cliente (CL) \qquad \rule{4.2cm}{0.4pt} Analista (AN)} \\
+\bottomrule
+\end{tabularx}
+\end{evidencia}
+
+\begin{consejo}
+Valida con ejemplos numéricos, no leyendo el documento. El cliente no detectó la ambigüedad de «stock bajo» al leerla, pero sí al responder a un caso concreto. Esos mismos ejemplos se convierten después en casos de prueba (PU-11).
+\end{consejo}
+
+% ---------------------------------------------------------------------
+\subsection{Paso 5. Diseñar la arquitectura, los casos de prueba y la trazabilidad}\label{paso:dis}
+% ---------------------------------------------------------------------
+\begin{ficha}{Ficha del paso 5}
+\begin{tablaficha}
+\campo{Actividad de la norma}{IS.3 Arquitectura y diseño detallado: documentar y verificar el diseño, establecer casos y procedimientos de prueba y actualizar el registro de trazabilidad.}
+\campo{Rol}{DIS; aprueba LT.}
+\campo{Entradas}{Especificación de requisitos [validada].}
+\campo{Salidas}{Diseño de software [verificado]; casos y procedimientos de prueba; registro de trazabilidad.}
+\campo{Terminado cuando}{Cada requisito está asignado a un componente y a al menos un caso de prueba.}
+\end{tablaficha}
+\end{ficha}
+
+\begin{evidencia}{E4 · Diseño de software (vista de capas)}
+\centering
+\begin{tikzpicture}[font=\footnotesize,
+  capa/.style={draw=verdeespe,fill=verdeclaro,minimum width=9.6cm,minimum height=0.95cm,align=center,rounded corners=2pt},
+  fut/.style={draw=gristexto,dashed,fill=white,minimum width=9.6cm,minimum height=0.8cm,align=center,rounded corners=2pt,text=gristexto},
+  fl/.style={-{Stealth[length=2mm]},thick,gristexto}]
+\node[fut] (ui) {Cliente web / navegador \quad(incremento 2)};
+\node[capa,below=0.45cm of ui] (api) {\textbf{API REST} · \cod{api.py} (FastAPI)\\ \scriptsize validación de entrada, traducción de errores a HTTP 404 / 409 / 422};
+\node[capa,below=0.45cm of api] (srv) {\textbf{Servicio de dominio} · \cod{servicio.py}\\ \scriptsize reglas RF-01 a RF-08, validaciones, kárdex, CSV};
+\node[capa,below=0.45cm of srv,minimum width=4.6cm,anchor=north east,xshift=4.8cm] (err) {\cod{errores.py}\\ \scriptsize excepciones de negocio};
+\node[capa,below=0.45cm of srv,minimum width=4.6cm,anchor=north west,xshift=-4.8cm] (mod) {\cod{modelos.py}\\ \scriptsize Producto, Movimiento};
+\node[fut,below=0.45cm of mod.south west,anchor=north west] (bd) {Persistencia: memoria (incremento 1) → PostgreSQL (incremento 2)};
+\draw[fl] (ui)--(api); \draw[fl] (api)--(srv);
+\draw[fl] (srv.south-|mod) -- (mod); \draw[fl] (srv.south-|err) -- (err);
+\draw[fl] (mod) -- (mod|-bd.north);
+\end{tikzpicture}
+
+\vspace{0.2cm}
+\raggedright\small
+\textbf{Decisiones de diseño.} (1) El dominio no depende de FastAPI: se prueba sin servidor y la API es una capa delgada. (2) Los precios usan \cod{Decimal} para evitar errores de redondeo de punto flotante. (3) El reloj se inyecta en el servicio para que las pruebas controlen la fecha de los movimientos. (4) Toda validación ocurre \emph{antes} de modificar el estado (RNF-01).
+\end{evidencia}
+
+\begin{evidencia}{E5 · Registro de trazabilidad}
+\footnotesize
+\begin{tabularx}{\linewidth}{@{}l P{4.2cm} L l c@{}}
+\toprule
+\textbf{Req.} & \textbf{Componente} & \textbf{Pruebas unitarias} & \textbf{Integración} & \textbf{Result.} \\
+\midrule
+RF-01 & \cod{registrar\_producto}, \cod{POST /productos} & PU-01, PU-02, PU-03 & PI-03, PI-05 & \si \\
+RF-02 & \cod{registrar\_entrada}, \cod{POST .../entradas} & PU-04, PU-05, PU-06, PU-07 & PI-01, PI-04 & \si \\
+RF-03 & \cod{registrar\_salida}, \cod{POST .../salidas} & PU-08, PU-09, PU-10 & PI-01, PI-02 & \si \\
+RF-04 & \cod{productos\_bajo\_stock}, \cod{GET /alertas/stock-bajo} & PU-11, PU-12 & PI-01 & \si \\
+RF-05 & \cod{buscar}, \cod{GET /productos?q=} & PU-13 & PI-06 & \si \\
+RF-06 & \cod{valor\_inventario} & PU-14, PU-15 & — & \si \\
+RF-07 & \cod{kardex} & PU-16 & — & \si \\
+RF-08 & \cod{exportar\_bajo\_stock\_csv}, \cod{GET /reportes/stock-bajo.csv} & PU-17, PU-18 & PI-06 & \si \\
+RNF-01 & Validaciones previas a mutar & PU-05, PU-06, PU-09 & PI-02 & \si \\
+RNF-02 & \cod{buscar} & Medición con 5\,000 productos & — & \si \\
+RNF-03 & Todo el módulo & Cobertura con \cod{pytest-cov} & — & \si \\
+RNF-04 & \cod{api.py} & — & PI-01 a PI-06 & \si \\
+\bottomrule
+\end{tabularx}
+\end{evidencia}
+% ---------------------------------------------------------------------
+\subsection{Paso 6. Construir el incremento y sus pruebas unitarias}\label{paso:con}
+% ---------------------------------------------------------------------
+\begin{ficha}{Ficha del paso 6}
+\begin{tablaficha}
+\campo{Actividad de la norma}{IS.4 Construcción: construir los componentes según el diseño, diseñar y aplicar pruebas unitarias, corregir los defectos hasta cumplir el criterio de salida, actualizar la trazabilidad e incorporar los componentes a la línea base.}
+\campo{Rol}{PR; aprueba LT.}
+\campo{Entradas}{Diseño de software; casos de prueba; registro de trazabilidad.}
+\campo{Salidas}{Componentes de software en el repositorio; pruebas unitarias; registro de correcciones; línea base \cod{lb-IS4}.}
+\campo{Terminado cuando}{\textbf{Criterio de salida:} 100\,\% de pruebas unitarias aprobadas y ningún defecto abierto.}
+\end{tablaficha}
+\end{ficha}
+
+\noindent\textbf{Componentes construidos.} El incremento tiene 309 líneas de código en cinco archivos y 225 líneas de pruebas:
+
+\begin{table}[H]
+\centering\small
+\begin{tabularx}{\linewidth}{@{}l r L@{}}
+\toprule
+\textbf{Archivo} & \textbf{Líneas} & \textbf{Responsabilidad} \\
+\midrule
+\cod{src/inventario/modelos.py}  & 34  & Entidades \cod{Producto} y \cod{Movimiento}; regla \cod{bajo\_stock}. \\
+\cod{src/inventario/errores.py}  & 21  & Excepciones de negocio. \\
+\cod{src/inventario/servicio.py} & 139 & Reglas RF-01 a RF-08. \\
+\cod{src/inventario/api.py}      & 93  & API REST (FastAPI). \\
+\cod{src/inventario/\_\_init\_\_.py} & 22 & Interfaz pública del paquete. \\
+\cod{tests/test\_servicio.py}    & 168 & Pruebas unitarias PU-01 a PU-18. \\
+\cod{tests/test\_api.py}         & 57  & Pruebas de integración PI-01 a PI-06. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{evidencia}{E6a · Extracto del componente \cod{servicio.py} (versión corregida)}
+\begin{lstlisting}[style=python]
+def registrar_salida(self, codigo, cantidad, usuario,
+                     observacion="") -> Movimiento:
+    producto = self.obtener(codigo)
+    self._validar_cantidad(cantidad)
+    self._validar_usuario(usuario)
+    if cantidad > producto.stock:
+        raise StockInsuficienteError(
+            f"Stock insuficiente de {producto.codigo}: "
+            f"disponible {producto.stock}, solicitado {cantidad}")
+    producto.stock -= cantidad
+    return self._anotar(producto, TipoMovimiento.SALIDA, cantidad,
+                        usuario, observacion)
+
+# RF-04 -------------------------------------------------------------
+def productos_bajo_stock(self) -> list[Producto]:
+    # DEF-02: el requisito dice "stock <= mínimo"; se reutiliza la regla
+    return sorted((p for p in self._productos.values() if p.bajo_stock),
+                  key=lambda p: p.codigo)
+
+# RF-05 -------------------------------------------------------------
+def buscar(self, texto) -> list[Producto]:
+    # DEF-03: comparación sin distinguir mayúsculas ni tildes
+    patron = _normalizar(texto)
+    return sorted((p for p in self._productos.values()
+                   if patron in _normalizar(p.codigo)
+                   or patron in _normalizar(p.nombre)),
+                  key=lambda p: p.codigo)
+\end{lstlisting}
+\end{evidencia}
+
+\begin{evidencia}{E6b · Extracto de las pruebas unitarias \cod{test\_servicio.py}}
+\begin{lstlisting}[style=python]
+# RF-04 Alertas de stock bajo ----------------------------------------
+def test_pu11_alerta_incluye_stock_igual_al_minimo(inv):
+    inv.registrar_entrada("MRT-001", 5, "bodega1")      # 5 == mínimo 5
+    inv.registrar_entrada("TUB-050", 50, "bodega1")     # 50 > mínimo 20
+    codigos = [p.codigo for p in inv.productos_bajo_stock()]
+    assert codigos == ["MRT-001"]
+
+# RF-05 Buscar productos ---------------------------------------------
+@pytest.mark.parametrize("texto,esperado", [
+    ("martillo", ["MRT-001"]),
+    ("TUBERIA", ["TUB-050"]),          # sin tilde y en mayúsculas
+    ("tub-0", ["TUB-050"]),            # código parcial
+    ("pulgada", ["TUB-050"]),
+    ("", ["MRT-001", "TUB-050"]),      # texto vacío lista todo
+    ("serrucho", []),
+])
+def test_pu13_busqueda_insensible_a_mayusculas_y_tildes(inv, texto, esperado):
+    assert [p.codigo for p in inv.buscar(texto)] == esperado
+\end{lstlisting}
+\end{evidencia}
+
+\noindent\textbf{Primera ejecución de las pruebas unitarias.} Los 16 casos de prueba unitaria (31 ejecuciones, porque varios casos están parametrizados) se corrieron sobre la primera versión del código. Cinco ejecuciones fallaron:
+
+\begin{evidencia}{E6c · Salida de la primera ejecución (\cod{docs/ejecucion1\_pytest.txt})}
+\begin{lstlisting}[style=consola]
+FAILED tests/test_servicio.py::test_pu06_entrada_sin_usuario_no_altera_stock
+FAILED tests/test_servicio.py::test_pu11_alerta_incluye_stock_igual_al_minimo
+FAILED tests/test_servicio.py::test_pu13_busqueda_insensible_a_mayusculas_y_tildes[martillo-esperado0]
+FAILED tests/test_servicio.py::test_pu13_busqueda_insensible_a_mayusculas_y_tildes[TUBERIA-esperado1]
+FAILED tests/test_servicio.py::test_pu13_busqueda_insensible_a_mayusculas_y_tildes[tub-0-esperado2]
+========================= 5 failed, 26 passed in 0.05s =========================
+\end{lstlisting}
+\end{evidencia}
+
+\begin{evidencia}{E6d · Registro de correcciones}
+\small
+\begin{tabularx}{\linewidth}{@{}l l L L c@{}}
+\toprule
+\textbf{ID} & \textbf{Prueba} & \textbf{Causa raíz} & \textbf{Corrección} & \textbf{Estado} \\
+\midrule
+DEF-01 & PU-06 & El usuario se validaba \emph{después} de sumar al stock: una entrada rechazada dejaba el stock modificado (viola RNF-01). & Validar usuario antes de mutar el estado (\cod{\_validar\_usuario}). & Cerrado \\
+DEF-02 & PU-11 & Se usó \cod{<} en lugar de \cod{<=}, contra el requisito RF-04 ya corregido en la verificación V-01. & Reutilizar la propiedad \cod{Producto.bajo\_stock}. & Cerrado \\
+DEF-03 & PU-13 & La búsqueda comparaba texto literal: distinguía mayúsculas y tildes (RF-05, V-02). & Normalización Unicode NFKD y \cod{casefold()}. & Cerrado \\
+\bottomrule
+\end{tabularx}
+
+\vspace{0.2cm}
+Prueba de regresión tras las correcciones: \textbf{31 de 31 ejecuciones aprobadas}. Commit \cod{5a77ae2} y etiqueta de línea base \cod{lb-IS4}.
+\end{evidencia}
+
+\noindent\textbf{Lectura del resultado.} Dos de los tres defectos (DEF-02 y DEF-03) afectaban justamente a las reglas que la verificación de requisitos había aclarado (V-01 y V-02). La especificación estaba bien, pero el código no la siguió. La prueba unitaria escrita desde el criterio de aceptación lo detectó en minutos, antes de que llegara al cliente.
+
+\begin{consejo}
+Escribe primero las pruebas de los criterios de aceptación que costó aclarar con el cliente. Son las reglas con más riesgo de implementarse mal porque el programador «recuerda» la versión ambigua.
+\end{consejo}
+
+% ---------------------------------------------------------------------
+\subsection{Paso 7. Integrar y probar}\label{paso:int}
+% ---------------------------------------------------------------------
+\begin{ficha}{Ficha del paso 7}
+\begin{tablaficha}
+\campo{Actividad de la norma}{IS.5 Integración y pruebas: integrar el software, ejecutar las pruebas con los casos y procedimientos definidos, documentar el informe de pruebas, corregir y hacer regresión, y preparar la guía de operación y el manual de usuario.}
+\campo{Rol}{PR y ET; aprueba LT.}
+\campo{Entradas}{Componentes en línea base \cod{lb-IS4}; casos de prueba de integración.}
+\campo{Salidas}{Software integrado; informe de pruebas; guía de operación; manual de usuario.}
+\campo{Terminado cuando}{Todas las pruebas de integración y regresión aprobadas y cobertura $\geq 80$\,\% (RNF-03).}
+\end{tablaficha}
+\end{ficha}
+
+\noindent Las pruebas de integración ejercitan la API completa con el cliente HTTP de prueba de FastAPI. Cada prueba sigue el procedimiento: (1) crear la aplicación con un servicio nuevo, (2) registrar el producto de prueba, (3) ejecutar la petición, (4) comprobar el código HTTP y el cuerpo de la respuesta.
+
+\begin{evidencia}{E7a · Informe de pruebas · \cod{InformePruebas\_v1.0\_AAJ}}
+\small
+\textbf{a) Casos de prueba de integración.}
+
+\begin{tabularx}{\linewidth}{@{}l L l c@{}}
+\toprule
+\textbf{ID} & \textbf{Escenario} & \textbf{Resultado esperado} & \textbf{Estado} \\
+\midrule
+PI-01 & Entrada de 5, salida de 2 y consulta de alertas & Stock 3, \cod{bajo\_stock = true}, aparece en alertas & \si \\
+PI-02 & Salida sin stock disponible & HTTP 409 & \si \\
+PI-03 & Registrar código duplicado (en minúsculas) & HTTP 409 & \si \\
+PI-04 & Entrada a producto inexistente & HTTP 404 & \si \\
+PI-05 & Precio 0 y cantidad 0 & HTTP 422 & \si \\
+PI-06 & Búsqueda «INGLESA» y descarga del CSV & Producto encontrado; \cod{text/csv} con el producto & \si \\
+\bottomrule
+\end{tabularx}
+
+\vspace{0.3cm}
+\textbf{b) Resumen de ejecuciones.}
+
+\begin{tabularx}{\linewidth}{@{}l L c c c@{}}
+\toprule
+\textbf{Ejecución} & \textbf{Alcance} & \textbf{Total} & \textbf{Aprobadas} & \textbf{Fallidas} \\
+\midrule
+1 & Pruebas unitarias PU-01 a PU-16, código inicial & 31 & 26 & 5 \\
+2 & Regresión tras corregir DEF-01 a DEF-03 & 31 & 31 & 0 \\
+3 & Final: PU-01 a PU-18 (incluye SC-01) y PI-01 a PI-06 & 39 & \textbf{39} & 0 \\
+4 & Repetición en entorno limpio tras corregir DEF-04 & 39 & 39 & 0 \\
+\bottomrule
+\end{tabularx}
+
+\vspace{0.3cm}
+\textbf{c) Cobertura de la ejecución final} (\cod{pytest -{}-cov=inventario -{}-cov-branch}).
+\begin{lstlisting}[style=consola]
+Name                         Stmts   Miss Branch BrPart  Cover
+--------------------------------------------------------------
+src/inventario/__init__.py       4      0      0      0   100%
+src/inventario/api.py           54      0      0      0   100%
+src/inventario/errores.py        5      0      0      0   100%
+src/inventario/modelos.py       26      0      0      0   100%
+src/inventario/servicio.py      84      0     20      0   100%
+--------------------------------------------------------------
+TOTAL                          173      0     20      0   100%
+39 passed in 0.54s
+\end{lstlisting}
+
+\textbf{d) Rendimiento (RNF-02).} Búsqueda de «NUMERO 49» entre 5\,000 productos, 20 repeticiones (\cod{docs/bench\_rnf02.py}): 111 resultados, \textbf{mediana 13,5 ms} y máximo 14,2 ms, muy por debajo del límite de 1 s. La medición es del servicio en memoria; debe repetirse en el incremento 2 con base de datos.
+
+\vspace{0.2cm}
+\textbf{e) Conclusión.} Criterio de salida cumplido: 39/39 pruebas aprobadas, 100\,\% de cobertura de sentencias y ramas (meta $\geq 80$\,\%), sin defectos abiertos. Entorno: Python 3.13, pytest 9.1, FastAPI 0.165, Linux.
+\end{evidencia}
+
+\noindent\textbf{Guía de operación y manual de usuario.} Se integraron en el \cod{README.md} del repositorio: instalación (\cod{pip install -e ".[dev]"}), ejecución de pruebas, arranque del servidor (\cod{uvicorn inventario.api:app -{}-app-dir src}) y la tabla de requisitos implementados. El manual de usuario de la API es la documentación OpenAPI que FastAPI genera en \cod{/docs}, con un ejemplo por operación.
+
+\begin{evidencia}{E7b · Verificación de la guía de operación (DEF-04)}
+\small
+La guía se verificó \textbf{ejecutándola paso a paso en un entorno virtual nuevo}, no leyéndola. El arranque del servidor falló: \cod{uvicorn} no estaba declarado en las dependencias de \cod{pyproject.toml}, así que solo funcionaba en el equipo donde ya estaba instalado.
+
+\vspace{0.2cm}
+\begin{tabularx}{\linewidth}{@{}l L L c@{}}
+\toprule
+\textbf{ID} & \textbf{Causa raíz} & \textbf{Corrección} & \textbf{Estado} \\
+\midrule
+DEF-04 & Dependencia implícita: \cod{uvicorn} existía en el entorno de desarrollo pero no en \cod{pyproject.toml}. & Declarar \cod{uvicorn} como dependencia (commit \cod{8ebf49a}) y repetir la guía completa en un entorno limpio. & Cerrado \\
+\bottomrule
+\end{tabularx}
+
+\vspace{0.2cm}
+Resultado de la repetición: instalación sin errores, 39/39 pruebas aprobadas y servidor respondiendo en \cod{/docs} (HTTP 200); se registró un producto, una entrada y se descargó el CSV desde la API en ejecución.
+\end{evidencia}
+
+\begin{consejo}
+Una cobertura alta no significa que las pruebas sean buenas; significa que no quedaron líneas sin ejecutar. Lo que da valor es que cada prueba compruebe un criterio de aceptación concreto y que esté enlazada en el registro de trazabilidad.
+\end{consejo}
+
+% ---------------------------------------------------------------------
+\subsection{Paso 8. Tramitar solicitudes de cambio}\label{paso:sc}
+% ---------------------------------------------------------------------
+\begin{ficha}{Ficha del paso 8}
+\begin{tablaficha}
+\campo{Tareas de la norma}{GP.2 (analizar y evaluar la solicitud de cambio por su impacto en costo, cronograma y aspectos técnicos) y GP.3 (identificar cambios a requisitos o al plan y tratarlos).}
+\campo{Rol}{GP analiza; LT estima el impacto técnico; CL decide junto al GP.}
+\campo{Entradas}{Pedido del cliente; Plan del proyecto v1.0; especificación v1.1.}
+\campo{Salidas}{Solicitud de cambio [aceptada / rechazada]; plan y especificación actualizados si se acepta.}
+\campo{Terminado cuando}{La decisión está registrada, firmada y, si es aceptada, reflejada en el plan, los requisitos y la trazabilidad.}
+\end{tablaficha}
+\end{ficha}
+
+\noindent En la reunión de revisión del 21/11 el cliente presentó dos pedidos. Ambos se tramitaron con el mismo formulario.
+
+\begin{evidencia}{E8a · Solicitud de cambio SC-01 [aceptada]}
+\small
+\begin{tabularx}{\linewidth}{@{}P{3.4cm}L@{}}
+\toprule
+\textbf{Fecha / solicitante} & 21/11/2026 · Sr. Jorge Paredes (CL) \\
+\textbf{Descripción} & Descargar la lista de productos con stock bajo en un archivo que se abra en Excel para enviarla al proveedor. \\
+\textbf{Justificación} & Hoy el pedido se arma a mano; es el uso principal que el cliente dará a las alertas. \\
+\textbf{Tipo} & Cambio de requisitos (nuevo RF-08). \\
+\textbf{Impacto técnico} & Bajo: reutiliza \cod{productos\_bajo\_stock}; un método y un \emph{endpoint} nuevos. CSV separado por «;» para Excel en configuración regional de Ecuador. \\
+\textbf{Impacto en esfuerzo y costo} & +1,0 h (0,5 h implementación y 0,5 h pruebas) · +USD 8,00. \\
+\textbf{Impacto en cronograma} & Ninguno: cabe en la holgura del 22/11. \\
+\textbf{Riesgo} & Bajo. \\
+\textbf{Decisión} & \textbf{ACEPTADA} · Plan actualizado a v1.1; especificación a v1.2; trazabilidad con PU-17, PU-18 y PI-06. \\
+\textbf{Implementación} & Commit \cod{e70d40a}; pruebas aprobadas en la ejecución 3. \\
+\textbf{Firmas} & \rule{3.8cm}{0.4pt} CL \qquad \rule{3.8cm}{0.4pt} GP \\
+\bottomrule
+\end{tabularx}
+\end{evidencia}
+
+\begin{evidencia}{E8b · Solicitud de cambio SC-02 [rechazada]}
+\small
+\begin{tabularx}{\linewidth}{@{}P{3.4cm}L@{}}
+\toprule
+\textbf{Fecha / solicitante} & 21/11/2026 · Sr. Jorge Paredes (CL) \\
+\textbf{Descripción} & Emitir facturas electrónicas autorizadas por el SRI al registrar una salida por venta. \\
+\textbf{Tipo} & Cambio de alcance (las ventas y la facturación están fuera de alcance según el Enunciado del trabajo). \\
+\textbf{Impacto técnico} & Alto: firma electrónica, certificado digital del contribuyente, esquemas XML y servicios web del SRI, ambiente de pruebas y manejo de rechazos. \\
+\textbf{Impacto en esfuerzo y costo} & Estimado en 25–30 h (más que todo el proyecto) y costo del certificado de firma electrónica. \\
+\textbf{Impacto en cronograma} & Imposible antes del 23/11; desplaza la entrega al menos dos semanas. \\
+\textbf{Riesgo} & Alto: requisitos legales y datos tributarios reales. \\
+\textbf{Decisión} & \textbf{RECHAZADA} para este proyecto. Se registra como candidata para un proyecto posterior, después de que el incremento 2 incorpore ventas. \\
+\textbf{Firmas} & \rule{3.8cm}{0.4pt} CL \qquad \rule{3.8cm}{0.4pt} GP \\
+\bottomrule
+\end{tabularx}
+\end{evidencia}
+
+\begin{consejo}
+Rechazar un cambio también es gestionarlo. Lo importante es que la decisión se base en el impacto medido y en el alcance firmado, y que quede escrita. Sin el apartado «Fuera de alcance» del paso~2, la discusión de SC-02 habría sido una cuestión de opiniones.
+\end{consejo}
+
+% ---------------------------------------------------------------------
+\subsection{Paso 9. Registrar horas, calcular el retrabajo y reportar el avance}\label{paso:met}
+% ---------------------------------------------------------------------
+\begin{ficha}{Ficha del paso 9}
+\begin{tablaficha}
+\campo{Tareas de la norma}{GP.2 (vigilar la ejecución del plan y registrar los datos reales en el reporte de avance) y GP.3 (evaluar el avance contra el plan y establecer acciones correctivas).}
+\campo{Rol}{GP; todos los roles registran sus horas.}
+\campo{Entradas}{Hoja de horas; Plan del proyecto v1.1; registro de correcciones.}
+\campo{Salidas}{Reporte de avance con métricas; acciones correctivas.}
+\campo{Terminado cuando}{Las horas reales están completas por categoría, el \% de retrabajo está calculado y cada desviación tiene una acción.}
+\end{tablaficha}
+\end{ficha}
+
+\noindent\textbf{Definición de las métricas.}
+\begin{itemize}
+  \item \textbf{Retrabajo}: horas dedicadas a corregir defectos de productos ya entregados a verificación (documentos o código). No incluye el trabajo nuevo que proviene de una solicitud de cambio aceptada.
+  \item $\displaystyle \%\ \text{retrabajo} = \frac{\text{horas de retrabajo}}{\text{horas totales reales}} \times 100$
+  \item $\displaystyle \text{Desviación de esfuerzo} = \frac{\text{horas reales} - \text{horas planificadas}}{\text{horas planificadas}} \times 100$
+\end{itemize}
+
+\begin{evidencia}{E9a · Registro de horas · \cod{RegistroHoras\_AAJ}}
+\small
+\begin{tabularx}{\linewidth}{@{}l l L c r@{}}
+\toprule
+\textbf{Fecha} & \textbf{Sesión} & \textbf{Actividad} & \textbf{Cat.} & \textbf{Horas} \\
+\midrule
+16/11 & Autónomo & Repositorio, tablero Kanban, plantillas y hoja de horas & GP & 0,5 \\
+17/11 & S1 & Redactar y revisar el Enunciado del trabajo con el cliente (GP.1.1) & GP & 1,0 \\
+17/11 & Autónomo & Plan del proyecto e instrucciones de entrega (GP.1, GP.1.2) & GP & 1,5 \\
+17/11 & Autónomo & Corregir el plan tras su verificación (criterios de entrega, R4) & \textbf{RET} & 0,5 \\
+18/11 & Autónomo & Especificar requisitos & REQ & 2,0 \\
+18/11 & Autónomo & Verificar requisitos con lista de chequeo & REQ & 0,5 \\
+18/11 & Autónomo & Corregir V-01 a V-03 en la especificación & \textbf{RET} & 0,5 \\
+19/11 & Autónomo & Validar requisitos con el cliente & REQ & 1,0 \\
+19/11 & Autónomo & Incorporar la observación de validación (RF-07) & \textbf{RET} & 0,5 \\
+19/11 & Autónomo & Arquitectura, casos de prueba y trazabilidad (IS.3) & DIS & 2,0 \\
+20/11 & Autónomo & Componentes RF-01 a RF-07 y pruebas PU-01 a PU-16 (IS.4) & CON & 5,5 \\
+21/11 & Autónomo & Corregir DEF-01 a DEF-03 y regresión & \textbf{RET} & 1,0 \\
+21/11 & Autónomo & Analizar SC-01 y SC-02; reunión de revisión con el cliente & GP & 0,5 \\
+22/11 & Autónomo & RF-08, API REST y pruebas PI-01 a PI-06 (IS.5) & INT & 3,0 \\
+22/11 & Autónomo & Manual de usuario, guía de operación y mantenimiento & ENT & 1,5 \\
+22/11 & Autónomo & Corregir DEF-04 al verificar la guía de operación y repetirla & \textbf{RET} & 0,5 \\
+22/11 & Autónomo & Reporte de avance y métricas & GP & 0,5 \\
+23/11 & S2 & Entrega del incremento \cod{v0.1.0} y presentación & ENT & 0,5 \\
+23/11 & S2 & Acta de aceptación y autoevaluación con el DP (GP.4) & GP & 0,5 \\
+\midrule
+\multicolumn{4}{@{}r}{\textbf{Total real}} & \textbf{23,5} \\
+\bottomrule
+\end{tabularx}
+\end{evidencia}
+
+\begin{evidencia}{E9b · Horas por categoría: planificado (v1.1) frente a real}
+\small
+\begin{minipage}[c]{0.48\linewidth}
+\begin{tabular}{@{}l r r r@{}}
+\toprule
+\textbf{Categoría} & \textbf{Plan} & \textbf{Real} & \textbf{Desv.} \\
+\midrule
+Gestión (GP)        & 4,0 & 4,5 & +12,5\,\% \\
+Requisitos (REQ)    & 3,0 & 3,5 & +16,7\,\% \\
+Diseño (DIS)        & 2,0 & 2,0 & 0,0\,\% \\
+Construcción (CON)  & 6,0 & 5,5 & $-$8,3\,\% \\
+Integración (INT)   & 3,5 & 3,0 & $-$14,3\,\% \\
+Entrega (ENT)       & 2,5 & 2,0 & $-$20,0\,\% \\
+Retrabajo (RET)     & 1,0 & 3,0 & +200,0\,\% \\
+\midrule
+\textbf{Total}      & \textbf{22,0} & \textbf{23,5} & \textbf{+6,8\,\%} \\
+\bottomrule
+\end{tabular}
+\end{minipage}\hfill
+\begin{minipage}[c]{0.49\linewidth}
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  xbar=1.5pt,
+  width=\linewidth,height=6.4cm,
+  bar width=5pt,
+  xmin=0,xmax=7,
+  xlabel={Horas},xlabel style={font=\scriptsize},
+  symbolic y coords={RET,ENT,INT,CON,DIS,REQ,GP},
+  ytick=data,
+  y tick label style={font=\scriptsize},
+  x tick label style={font=\scriptsize},
+  axis x line*=bottom,axis y line*=left,
+  xmajorgrids,grid style={gristexto!20},
+  enlarge y limits=0.09,
+  legend style={font=\scriptsize,at={(0.5,1.03)},anchor=south,draw=none,fill=none,legend columns=2,/tikz/every even column/.append style={column sep=8pt}},
+  legend cell align=left,
+  every axis plot/.append style={draw=white,line width=0.5pt},
+]
+\addplot[fill=azulserie] coordinates {(4.0,GP) (3.0,REQ) (2.0,DIS) (6.0,CON) (3.5,INT) (2.5,ENT) (1.0,RET)};
+\addplot[fill=naranjaserie] coordinates {(4.5,GP) (3.5,REQ) (2.0,DIS) (5.5,CON) (3.0,INT) (2.0,ENT) (3.0,RET)};
+\legend{Planificado (v1.1),Real}
+\end{axis}
+\end{tikzpicture}
+\end{minipage}
+\end{evidencia}
+
+\begin{evidencia}{E9c · Reporte de avance con métricas · corte al 23/11/2026 (cierre)}
+\small
+\textbf{a) Indicadores.}
+
+\begin{tabularx}{\linewidth}{@{}L r L@{}}
+\toprule
+\textbf{Indicador} & \textbf{Valor} & \textbf{Interpretación} \\
+\midrule
+Horas reales totales & 23,5 h & Dentro de la restricción de 24 h del enunciado. \\
+Desviación de esfuerzo frente a v1.1 & +6,8\,\% & Leve; se explica por el retrabajo, que superó la reserva en 2,0 h. \\
+\textbf{Porcentaje de retrabajo} & \textbf{12,8\,\%} & 3,0 h de 23,5 h. La reserva era 1,0 h (4,5\,\% del plan). \\
+Horas productivas (sin retrabajo) & 20,5 h & 0,5 h menos que las planificadas (22,0 h $-$ 1,0 h de reserva = 21,0 h). \\
+Defectos registrados & 9 & 5 en documentos (1 del plan, V-01 a V-03 y 1 de validación), 3 en código y 1 de configuración (DEF-04). \\
+Defectos detectados antes de construir & 56\,\% & 5 de 9 se eliminaron en revisiones, antes de escribir código. \\
+Densidad de defectos en código & 9,7 def./KLOC & 3 defectos en 309 líneas, detectados por pruebas unitarias (DEF-04 no cuenta: está en la configuración). \\
+Pruebas aprobadas / cobertura & 39/39 · 100\,\% & Cumple RNF-03 (meta $\geq 80$\,\%). \\
+Costo real (referencial) & USD 188,00 & 23,5 h $\times$ USD 8,00; +USD 12,00 frente al plan. \\
+\bottomrule
+\end{tabularx}
+
+\vspace{0.3cm}
+\textbf{b) Distribución del retrabajo.}
+
+\begin{tabularx}{\linewidth}{@{}l L r r@{}}
+\toprule
+\textbf{Origen} & \textbf{Causa} & \textbf{Horas} & \textbf{\% del retrabajo} \\
+\midrule
+Verificación del plan & Faltaban criterios de aceptación y un riesgo & 0,5 & 16,7\,\% \\
+Verificación de requisitos & Ambigüedades V-01 a V-03 & 0,5 & 16,7\,\% \\
+Validación con el cliente & Necesidad no educida (kárdex) & 0,5 & 16,7\,\% \\
+Pruebas unitarias & DEF-01 a DEF-03 & 1,0 & 33,3\,\% \\
+Verificación de la guía de operación & DEF-04 (dependencia faltante) & 0,5 & 16,7\,\% \\
+\midrule
+\textbf{Total} & & \textbf{3,0} & \textbf{100\,\%} \\
+\bottomrule
+\end{tabularx}
+
+\vspace{0.3cm}
+\textbf{c) Estado de actividades.}
+
+\begin{tabularx}{\linewidth}{@{}l c L@{}}
+\toprule
+\textbf{Actividad} & \textbf{Avance} & \textbf{Estado} \\
+\midrule
+GP.1 a GP.3; IS.1 a IS.5 & 100\,\% & Terminadas y en línea base. \\
+IS.6 Entrega & 100\,\% & Entregada en S2 (23/11), etiqueta \cod{v0.1.0}. \\
+GP.4 Cierre & 100\,\% & Acta de aceptación firmada en S2 (23/11). \\
+\bottomrule
+\end{tabularx}
+
+\vspace{0.3cm}
+\textbf{d) Riesgos y acciones correctivas (GP.3).}
+\begin{itemize}
+  \item \textbf{El retrabajo triplicó la reserva} (3,0 h frente a 1,0 h). Causa: se estimó la reserva sin datos históricos (riesgo R4 materializado). \emph{Acción:} para el incremento 2, reservar el 13\,\% del esfuerzo, según este dato real.
+  \item \textbf{Defectos de código sobre reglas ya aclaradas (DEF-02, DEF-03).} \emph{Acción:} antes de codificar cada requisito, releer su criterio de aceptación y escribir primero su prueba.
+  \item \textbf{Guía de operación no reproducible (DEF-04).} \emph{Acción:} toda guía de instalación u operación se verifica ejecutándola en un entorno limpio antes de entregarla.
+  \item \textbf{R5 (autoverificación).} Se mantuvo controlado con listas de chequeo; las pruebas automatizadas actuaron como verificador independiente del código.
+\end{itemize}
+\end{evidencia}
+
+\begin{consejo}
+Calcula el retrabajo por \emph{origen}, no solo el total. En este caso la mitad del retrabajo vino de documentos y no de código, lo que justifica invertir en las revisiones tempranas en lugar de recortarlas.
+\end{consejo}
+% ---------------------------------------------------------------------
+\subsection{Paso 10. Entregar el producto}\label{paso:ent}
+% ---------------------------------------------------------------------
+\begin{ficha}{Ficha del paso 10}
+\begin{tablaficha}
+\campo{Actividad de la norma}{IS.6 Entrega del producto: revisar la configuración del software, documentar y verificar la documentación de mantenimiento, incorporarla a la línea base y entregar según las instrucciones de entrega.}
+\campo{Rol}{GP y LT; recibe CL.}
+\campo{Entradas}{Software integrado y probado; informe de pruebas; instrucciones de entrega del plan.}
+\campo{Salidas}{Configuración del software entregada; documentación de mantenimiento [verificada].}
+\campo{Terminado cuando}{Cada entregable de las instrucciones de entrega está en la configuración, en el formato y medio acordados.}
+\end{tablaficha}
+\end{ficha}
+
+\begin{evidencia}{E10 · Configuración del software entregada (línea base \cod{v0.1.0})}
+\small
+\begin{tabularx}{\linewidth}{@{}P{4.2cm} L l@{}}
+\toprule
+\textbf{Elemento de configuración} & \textbf{Ubicación} & \textbf{Versión} \\
+\midrule
+Componentes de software & \cod{src/inventario/*.py} & \cod{v0.1.0} \\
+Pruebas unitarias y de integración & \cod{tests/test\_servicio.py}, \cod{tests/test\_api.py} & \cod{v0.1.0} \\
+Evidencias de ejecución & \cod{docs/ejecucion1..3*.txt}, \cod{docs/rnf02\_*.txt} & \cod{v0.1.0} \\
+Especificación de requisitos & Sección~\ref{paso:req} de este informe & 1.2 \\
+Diseño y registro de trazabilidad & Sección~\ref{paso:dis} de este informe & 1.0 \\
+Manual de usuario, guía de operación y documentación de mantenimiento & \cod{README.md} y OpenAPI (\cod{/docs}) & \cod{v0.1.0} \\
+Dependencias & \cod{pyproject.toml} & \cod{v0.1.0} \\
+\bottomrule
+\end{tabularx}
+
+\vspace{0.3cm}
+\textbf{Historial del repositorio} (\cod{git log -{}-oneline -{}-decorate}):
+\begin{lstlisting}[style=consola]
+8ebf49a (HEAD -> main, tag: v0.1.0) IS.6 Corrige DEF-04: uvicorn faltaba en las dependencias de la guía de operación; filtra aviso de terceros en pytest
+b11fb5e IS.5.4 Evidencia de rendimiento RNF-02 (búsqueda con 5000 productos)
+e70d40a GP.2.2/SC-01 Agrega RF-08 exportación CSV de stock bajo; IS.5 API REST y pruebas de integración PI-01..PI-06
+5a77ae2 (tag: lb-IS4) IS.4.5 Corrige DEF-01 (usuario validado antes de mutar), DEF-02 (stock <= mínimo), DEF-03 (búsqueda sin mayúsculas/tildes)
+959169a IS.4.3 Construcción inicial del módulo de inventario (RF-01..RF-07) y pruebas PU-01..PU-16
+\end{lstlisting}
+
+\textbf{Documentación de mantenimiento (contenido verificado).} Estructura de carpetas y responsabilidad de cada módulo; convención de identificadores (RF, RNF, PU, PI, DEF, SC); cómo añadir un requisito nuevo (criterio de aceptación → prueba → componente → fila en la trazabilidad); estrategia de versiones y etiquetas; comando de pruebas con cobertura.
+\end{evidencia}
+
+% ---------------------------------------------------------------------
+\subsection{Paso 11. Cerrar el proyecto con el acta de aceptación}\label{paso:cierre}
+% ---------------------------------------------------------------------
+\begin{ficha}{Ficha del paso 11}
+\begin{tablaficha}
+\campo{Actividad de la norma}{GP.4 Cierre del proyecto: formalizar la terminación según las instrucciones de entrega, obtener el acta de aceptación firmada y actualizar el repositorio del proyecto.}
+\campo{Rol}{GP; firma CL.}
+\campo{Entradas}{Configuración del software entregada; instrucciones de entrega; reporte de avance final.}
+\campo{Salidas}{Acta de aceptación; repositorio del proyecto actualizado.}
+\campo{Terminado cuando}{El cliente firma el acta y los pendientes quedan registrados.}
+\end{tablaficha}
+\end{ficha}
+
+\newpage
+\begin{evidencia}{E11 · Acta de aceptación · \cod{ActaAceptacion\_v1.0\_AAJ}}
+\small
+\textbf{Proyecto:} SGI-Ferretería, incremento 1 \quad \textbf{Fecha:} 23/11/2026 \quad \textbf{Lugar:} sesión S2
+
+\vspace{0.2cm}
+\begin{tabularx}{\linewidth}{@{}P{4.0cm} L c@{}}
+\toprule
+\textbf{Entregable} & \textbf{Criterio de aceptación del plan y verificación} & \textbf{Aceptado} \\
+\midrule
+Software (incremento 1) & 39/39 pruebas aprobadas; cobertura 100\,\% ($\geq 80$\,\%). Demostración en vivo de RF-01 a RF-08. & \si \\
+Especificación de requisitos & Verificada (E3b) y validada (E3c); v1.2 incluye SC-01. & \si \\
+Manual de usuario de la API & El cliente ejecutó con la documentación OpenAPI una entrada, una salida y la descarga del CSV. & \si \\
+Guía de operación & Instalación y arranque reproducidos en un entorno limpio siguiendo el \cod{README.md} (tras corregir DEF-04). & \si \\
+Documentación de mantenimiento & Contenido verificado (E10). & \si \\
+Informe del proyecto & Contiene todas las evidencias de la tabla~\ref{tab:mapa-evidencias}. & \si \\
+\bottomrule
+\end{tabularx}
+
+\vspace{0.2cm}
+\textbf{Pendientes y acuerdos.}
+\begin{itemize}
+  \item El incremento 2 (interfaz web, usuarios con roles y ventas) se planificará en un nuevo Enunciado del trabajo.
+  \item SC-02 (facturación electrónica) queda registrada como candidata para un proyecto posterior.
+  \item RNF-02 debe volver a medirse cuando exista persistencia en base de datos.
+\end{itemize}
+
+\textbf{Resumen de cierre.} Esfuerzo: 23,5 h (plan 22,0 h; +6,8\,\%). Costo referencial: USD 188,00. Retrabajo: 12,8\,\%. Fecha de entrega cumplida.
+
+\vspace{0.6cm}
+\begin{tabular}{@{}c@{\hspace{2.2cm}}c@{}}
+\rule{5.2cm}{0.4pt} & \rule{5.2cm}{0.4pt} \\
+Sr. Jorge Paredes & Ariel Jara \\
+Cliente (CL) · Ferretería «El Perno» & Gestor del proyecto (GP) \\
+\end{tabular}
+\end{evidencia}
+
+% ---------------------------------------------------------------------
+\subsection{Paso 12. Autoevaluar con el paquete de despliegue}\label{paso:auto}
+% ---------------------------------------------------------------------
+\begin{ficha}{Ficha del paso 12}
+\begin{tablaficha}
+\campo{Propósito}{Medir qué tan completa fue la aplicación del Perfil Básico usando las listas de verificación de los paquetes de despliegue (DP).}
+\campo{Rol}{GP con LT.}
+\campo{Escala}{\si\ Cumple (1 punto) · \parcial\ Parcial (0,5) · N/A No aplica (se excluye del cálculo).}
+\campo{Salida}{Lista de autoevaluación con evidencia y plan de mejora.}
+\end{tablaficha}
+\end{ficha}
+
+\begin{evidencia}{E12 · Autoevaluación del Perfil Básico}
+\small
+\begin{longtable}{@{}l >{\raggedright\arraybackslash}p{6.9cm} >{\raggedright\arraybackslash}p{3.6cm} c@{}}
+\toprule
+\textbf{Act.} & \textbf{Práctica verificada} & \textbf{Evidencia} & \textbf{Estado} \\
+\midrule
+\endhead
+GP.1 & Enunciado del trabajo revisado con el cliente (GP.1.1) & E1 & \si \\
+GP.1 & Instrucciones de entrega acordadas con el cliente (GP.1.2) & E2 b) & \si \\
+GP.1 & Tareas, duración, recursos y roles identificados & E2 c) y e); tabla~\ref{tab:raci} & \si \\
+GP.1 & Cronograma, esfuerzo y costo estimados & E2 c), d) y f) & \si \\
+GP.1 & Riesgos identificados con respuesta & E2 g) & \si \\
+GP.1 & Estrategia de control de versiones documentada & E2 h) & \si \\
+GP.1 & Plan verificado y aceptado por el cliente & E2 i) & \si \\
+GP.1 & Repositorio del proyecto establecido & Paso 1 & \si \\
+GP.2 & Reporte de avance con datos reales & E9a–E9c & \si \\
+GP.2 & Solicitudes de cambio analizadas por impacto & E8a, E8b & \si \\
+GP.2 & Reuniones de revisión con el equipo de trabajo & Equipo de una persona & N/A \\
+GP.2 & Reuniones de revisión con el cliente & Acuerdos en SC-01/SC-02; sin acta de reunión propia & \parcial \\
+GP.2 & Respaldo y recuperación del repositorio & Respaldo hecho; recuperación no probada & \parcial \\
+GP.3 & Avance evaluado contra el plan y acciones correctivas & E9c d) & \si \\
+GP.4 & Cierre formal con acta de aceptación & E11 & \si \\
+GP.4 & Repositorio del proyecto actualizado & Etiqueta \cod{v0.1.0} & \si \\
+IS.1 & Plan revisado y entorno de implementación preparado & Paso 1 & \si \\
+IS.2 & Requisitos especificados, verificados y validados & E3a–E3c & \si \\
+IS.2 & Versión preliminar de la documentación de usuario & Se elaboró recién en IS.5 & \parcial \\
+IS.3 & Diseño documentado y verificado & E4; verificación sin revisor independiente & \parcial \\
+IS.3 & Casos de prueba y registro de trazabilidad & E5 & \si \\
+IS.4 & Componentes, pruebas unitarias y corrección de defectos & E6a–E6d & \si \\
+IS.5 & Integración, pruebas e informe de pruebas & E7a & \si \\
+IS.5 & Guía de operación y manual de usuario & Paso 7; E7b (verificada en entorno limpio) & \si \\
+IS.6 & Documentación de mantenimiento como documento propio & Incluida en el \cod{README.md} & \parcial \\
+IS.6 & Entrega según las instrucciones de entrega & E10, E11 & \si \\
+\midrule
+\multicolumn{4}{@{}l}{\textbf{Resultado:} 20 cumple, 5 parcial, 1 no aplica. Puntaje = (20 + 5 $\times$ 0,5) / 25 = \textbf{90\,\%}.} \\
+\bottomrule
+\end{longtable}
+
+\textbf{Plan de mejora.} (1) Redactar un acta breve de cada reunión con el cliente; (2) probar una vez la restauración del repositorio desde el respaldo; (3) escribir el borrador del manual de usuario durante IS.2; (4) pedir a un compañero de otro equipo la revisión del diseño; (5) separar la documentación de mantenimiento en \cod{docs/MANTENIMIENTO.md}.
+\end{evidencia}
+
+% =====================================================================
+\Needspace{14\baselineskip}
+\section{Reflexión y lecciones aprendidas}\label{sec:reflexion}
+% =====================================================================
+
+\subsection{¿Qué tarea aportó más valor?}
+La \textbf{verificación y validación de requisitos (IS.2)}, sobre todo por su conexión con las pruebas. Con una hora y media de trabajo eliminó cuatro de los nueve defectos del proyecto antes de escribir código: aclaró qué es «stock bajo», cómo debe buscarse un producto y qué significa «rápido», y descubrió con el cliente una necesidad que nadie había mencionado (el kárdex). Además, los ejemplos usados para validar se convirtieron directamente en casos de prueba. Por eso, cuando el código implementó mal dos de esas reglas (DEF-02 y DEF-03), las pruebas PU-11 y PU-13 lo detectaron de inmediato. Sin esa cadena, «requisito aclarado → ejemplo → prueba», ambos defectos habrían llegado al cliente.
+
+En segundo lugar, el \textbf{registro de horas con la categoría de retrabajo}. Sin él, el proyecto parecería simplemente «un poco atrasado» (+6,8\,\%). Con él se sabe que el esfuerzo productivo quedó incluso 0,5 h por debajo del plan, que toda la desviación vino del retrabajo y que la mitad de ese retrabajo se originó en documentos. Ese dato cambia la decisión: hay que reforzar las revisiones tempranas, no recortarlas.
+
+\subsection{¿Qué producto pareció burocrático y cómo simplificarlo sin perder evidencia?}
+\begin{table}[H]
+\centering\small
+\begin{tabularx}{\linewidth}{@{}P{3.4cm} L L@{}}
+\toprule
+\textbf{Producto} & \textbf{Por qué pareció burocrático} & \textbf{Simplificación que conserva la evidencia} \\
+\midrule
+Manual de usuario, guía de operación y documentación de mantenimiento & Tres documentos para una API de seis operaciones, con contenido repetido. & Un solo \cod{README.md} versionado, con tres secciones fijas y una lista de chequeo. La documentación OpenAPI generada sirve como manual de usuario. Git conserva la versión entregada. \\
+Registro de trazabilidad & Mantenerlo a mano obliga a actualizar una tabla cada vez que cambia una prueba. & Etiquetar cada prueba con su requisito (\cod{@pytest.mark.req("RF-04")}) y generar la matriz con un script en cada ejecución. Es más fiable que la tabla manual. \\
+Solicitud de cambio & Para un cambio de una hora, un formulario completo parece excesivo. & Una plantilla de \emph{issue} en el repositorio con los campos mínimos: descripción, impacto en horas, decisión y aprobador. La aprobación queda en el historial del \emph{issue}. \\
+Registro de horas & Llenar la hoja aparte interrumpe el trabajo. & Registrar el tiempo en la tarjeta del Kanban al moverla de columna y exportarlo a la hoja una vez al día. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+La idea común es que la evidencia no tiene que ser un documento aparte: puede ser un artefacto que ya existe (un commit, un \emph{issue}, el resultado de \cod{pytest}) siempre que sea identificable, esté versionado y muestre quién aprobó qué.
+
+\subsection{Lecciones aprendidas}
+\begin{enumerate}
+  \item \textbf{La reserva de retrabajo debe basarse en datos.} Se reservó el 4,5\,\% del esfuerzo y se necesitó el 12,8\,\%. Este dato real sirve ahora como base para el siguiente incremento.
+  \item \textbf{Verificar no garantiza implementar bien.} Dos defectos de código repitieron ambigüedades que ya se habían corregido en el documento. La prueba escrita desde el criterio de aceptación es lo que cierra esa brecha.
+  \item \textbf{El alcance escrito es una herramienta de negociación.} El rechazo de SC-02 fue rápido y sin conflicto porque el Enunciado del trabajo excluía la facturación de forma explícita.
+  \item \textbf{Trabajar solo exige disciplina adicional.} Sin revisión cruzada, las listas de chequeo escritas y las pruebas automatizadas reemplazaron parcialmente la independencia de un revisor. Aun así, la autoevaluación muestra que el diseño fue la práctica más débil por esa razón.
+  \item \textbf{Una guía se verifica ejecutándola, no leyéndola.} La guía de operación parecía completa al leerla, pero falló en un entorno limpio (DEF-04): el equipo de desarrollo tenía instalada una dependencia que nadie había declarado.
+  \item \textbf{El Perfil Básico es compatible con un ciclo incremental.} Los productos de trabajo no obligaron a un ciclo en cascada; se produjeron a medida que el incremento avanzaba.
+\end{enumerate}
+
+% =====================================================================
+\Needspace{10\baselineskip}
+\section{Conclusiones}
+% =====================================================================
+\begin{itemize}
+  \item Se aplicaron los dos procesos del Perfil Básico de ISO/IEC 29110 (GP e IS) al primer incremento de SGI-Ferretería y se generaron todas las evidencias solicitadas por el taller: Enunciado del trabajo revisado, Plan del proyecto con instrucciones de entrega, especificación validada, componentes y pruebas en el repositorio, dos solicitudes de cambio, reporte de avance con métricas, acta de aceptación y autoevaluación.
+  \item El incremento cumple su criterio de aceptación: 39 de 39 pruebas aprobadas, 100\,\% de cobertura de sentencias y ramas, búsqueda en 13,5 ms con 5\,000 productos y entrega en la fecha acordada.
+  \item El esfuerzo real fue de 23,5 h frente a 22,0 h planificadas (+6,8\,\%), con un 12,8\,\% de retrabajo. El 56\,\% de los defectos se eliminó antes de construir, lo que confirma el valor de las revisiones tempranas.
+  \item La autoevaluación da un 90\,\% de cumplimiento; las brechas (actas de reunión, prueba de recuperación del respaldo, revisión independiente del diseño y documentación de usuario temprana) tienen un plan de mejora concreto para el incremento 2.
+  \item La guía de doce pasos es replicable en otros proyectos pequeños: cada paso define su tarea de la norma, rol, entradas, salidas y criterio de terminado, y muestra un ejemplo real del producto de trabajo.
+\end{itemize}
+
+% =====================================================================
+%  REFERENCIAS
+% =====================================================================
+\begin{thebibliography}{9}
+\addcontentsline{toc}{section}{Referencias}
+\bibitem{iso2011} ISO/IEC. (2011). \emph{ISO/IEC TR 29110-5-1-2:2011. Software engineering — Lifecycle profiles for Very Small Entities (VSEs) — Part 5-1-2: Management and engineering guide: Generic profile group: Basic profile}. Ginebra: ISO.
+\bibitem{iso2025} ISO/IEC. (2025). \emph{ISO/IEC 29110-5-1-2:2025. Systems and software engineering — Life cycle profiles for very small entities (VSEs) — Part 5-1-2: Software engineering guidelines for the generic Basic profile}. Ginebra: ISO.
+\bibitem{laporte2016} Laporte, C. Y., y O'Connor, R. V. (2016). Systems and software engineering standards for very small entities: Accomplishments and overview. \emph{Computer}, 49(8), 84--87.
+\bibitem{etsdp} École de technologie supérieure. (s.f.). \emph{Perfil Básico — Paquetes de despliegue}. \url{https://ena.etsmtl.ca/mod/page/view.php?id=202865}
+\bibitem{taller} Universidad de las Fuerzas Armadas ESPE. (2026). \emph{Taller práctico ISO/IEC 29110: organización, actividades y entregables, rúbrica de evaluación}. Material de la asignatura Aseguramiento de la Calidad de Software.
+\bibitem{pytest} pytest-dev. (2026). \emph{pytest documentation}. \url{https://docs.pytest.org}
+\bibitem{fastapi} Ramírez, S. (2026). \emph{FastAPI documentation}. \url{https://fastapi.tiangolo.com}
+\end{thebibliography}
+
+% =====================================================================
+%  ANEXOS
+% =====================================================================
+\appendix
+\section{Correspondencia con la rúbrica de evaluación}
+\begin{table}[H]
+\centering\small
+\begin{tabularx}{\linewidth}{@{}P{3.6cm} c L l@{}}
+\toprule
+\textbf{Criterio} & \textbf{Peso} & \textbf{Dónde se evidencia en este informe} & \textbf{Secciones} \\
+\midrule
+Gestión del proyecto (GP) & 25\,\% & Plan completo con instrucciones de entrega, riesgos, versiones y control de cambios (v1.0 → v1.1 por SC-01); seguimiento y cierre. & \ref{paso:sow}, \ref{paso:plan}, \ref{paso:sc}, \ref{paso:met}, \ref{paso:cierre} \\
+Requisitos y validación (IS.2) & 20\,\% & Requisitos con criterio de aceptación, resultados de verificación y resultado de validación firmado. & \ref{paso:req} \\
+Construcción y pruebas (IS.4–IS.5) & 20\,\% & Incremento funcional en Git; 39/39 pruebas; cobertura 100\,\%; registro de correcciones; guía verificada en entorno limpio. & \ref{paso:con}, \ref{paso:int} \\
+Métricas y retrabajo & 15\,\% & Registro de horas por categoría, gráfico plan frente a real, \% de retrabajo y su análisis por origen. & \ref{paso:met} \\
+Roles y trabajo en equipo & 10\,\% & Matriz de responsabilidades y compensación por equipo de una persona. & \ref{sec:roles} \\
+Presentación y reflexión & 10\,\% & Respuestas a las preguntas de reflexión y lecciones aprendidas. & \ref{sec:reflexion} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\clearpage
+\section{Ejecución final de pruebas y cómo reproducirla}
+\noindent Para reproducir los resultados desde la raíz del repositorio:
+\begin{lstlisting}[style=consola]
+pip install -e ".[dev]"
+pytest -v --cov=inventario --cov-branch
+python docs/bench_rnf02.py
+\end{lstlisting}
+
+\noindent Salida detallada de la ejecución 3 (\cod{docs/ejecucion3\_detalle.txt}):
+\begin{lstlisting}[style=consola,basicstyle=\ttfamily\tiny]
+test_api.py::test_pi01_flujo_entrada_salida_y_alerta PASSED
+test_api.py::test_pi02_salida_sin_stock_responde_409 PASSED
+test_api.py::test_pi03_producto_duplicado_responde_409 PASSED
+test_api.py::test_pi04_producto_inexistente_responde_404 PASSED
+test_api.py::test_pi05_datos_invalidos_responden_422 PASSED
+test_api.py::test_pi06_busqueda_y_reporte_csv PASSED
+test_servicio.py::test_pu01_registra_producto_valido PASSED
+test_servicio.py::test_pu02_rechaza_codigo_duplicado PASSED
+test_servicio.py::test_pu03_rechaza_datos_invalidos[-Sin c\xf3digo-1.00-0] PASSED
+test_servicio.py::test_pu03_rechaza_datos_invalidos[X-1-   -1.00-0] PASSED
+test_servicio.py::test_pu03_rechaza_datos_invalidos[X-2-Precio cero-0-0] PASSED
+test_servicio.py::test_pu03_rechaza_datos_invalidos[X-3-Precio negativo--2.5-0] PASSED
+test_servicio.py::test_pu03_rechaza_datos_invalidos[X-4-Precio texto-abc-0] PASSED
+test_servicio.py::test_pu03_rechaza_datos_invalidos[X-5-M\xednimo negativo-1.00--1] PASSED
+test_servicio.py::test_pu03_rechaza_datos_invalidos[X-6-M\xednimo decimal-1.00-2.5] PASSED
+test_servicio.py::test_pu04_entrada_incrementa_stock_y_registra_movimiento PASSED
+test_servicio.py::test_pu05_entrada_rechaza_cantidad_invalida[0] PASSED
+test_servicio.py::test_pu05_entrada_rechaza_cantidad_invalida[-3] PASSED
+test_servicio.py::test_pu05_entrada_rechaza_cantidad_invalida[1.5] PASSED
+test_servicio.py::test_pu05_entrada_rechaza_cantidad_invalida[True] PASSED
+test_servicio.py::test_pu05_entrada_rechaza_cantidad_invalida[4] PASSED
+test_servicio.py::test_pu06_entrada_sin_usuario_no_altera_stock PASSED
+test_servicio.py::test_pu07_producto_inexistente PASSED
+test_servicio.py::test_pu08_salida_descuenta_stock PASSED
+test_servicio.py::test_pu09_salida_no_permite_stock_negativo PASSED
+test_servicio.py::test_pu10_salida_exacta_deja_stock_en_cero PASSED
+test_servicio.py::test_pu11_alerta_incluye_stock_igual_al_minimo PASSED
+test_servicio.py::test_pu12_alerta_vacia_cuando_todo_sobre_minimo PASSED
+test_servicio.py::test_pu13_busqueda_insensible_a_mayusculas_y_tildes[martillo-esperado0] PASSED
+test_servicio.py::test_pu13_busqueda_insensible_a_mayusculas_y_tildes[TUBERIA-esperado1] PASSED
+test_servicio.py::test_pu13_busqueda_insensible_a_mayusculas_y_tildes[tub-0-esperado2] PASSED
+test_servicio.py::test_pu13_busqueda_insensible_a_mayusculas_y_tildes[pulgada-esperado3] PASSED
+test_servicio.py::test_pu13_busqueda_insensible_a_mayusculas_y_tildes[-esperado4] PASSED
+test_servicio.py::test_pu13_busqueda_insensible_a_mayusculas_y_tildes[serrucho-esperado5] PASSED
+test_servicio.py::test_pu14_valor_inventario_usa_decimal_exacto PASSED
+test_servicio.py::test_pu15_valor_inventario_vacio_es_cero PASSED
+test_servicio.py::test_pu16_kardex_en_orden_cronologico PASSED
+test_servicio.py::test_pu17_csv_contiene_cabecera_y_productos_bajo_stock PASSED
+test_servicio.py::test_pu18_csv_sin_alertas_solo_trae_cabecera PASSED
+============================== 39 passed in 0.54s ==============================
+\end{lstlisting}
+
+\end{document}

@@ -28,10 +28,23 @@ uvicorn inventario.api:app --reload --app-dir src
 ## Estructura
 
 ```
-src/inventario/   modelos.py, errores.py, servicio.py, api.py
-tests/            test_servicio.py (PU-01..PU-18), test_api.py (PI-01..PI-06)
-docs/             evidencias de ejecución de pruebas
+src/inventario/     modelos.py, errores.py, servicio.py, api.py
+tests/              test_servicio.py (PU-01..PU-18), test_api.py (PI-01..PI-06)
+docs/               evidencias de ejecución de pruebas y medición de rendimiento
+docs/entregables/   informe y presentación del taller (LaTeX y PDF)
 ```
+
+## Entregables del taller
+
+| Archivo | Contenido |
+|---|---|
+| `docs/entregables/Informe_ISO29110_AAJ.pdf` | Informe: guía paso a paso de ISO/IEC 29110 con todas las evidencias |
+| `docs/entregables/Informe_ISO29110_AAJ.tex` | Fuente LaTeX del informe (compila con pdfLaTeX) |
+| `docs/entregables/Presentacion_ISO29110_AAJ.pdf` | Presentación de 15 minutos (Beamer) |
+| `docs/entregables/Presentacion_ISO29110_AAJ.tex` | Fuente LaTeX de la presentación |
+| `docs/entregables/Notas_Presentacion_AAJ.pdf` | Guion del expositor con tiempos por diapositiva |
+
+Autor: Ariel Jara.
 
 ## Estrategia de control de versiones
 
