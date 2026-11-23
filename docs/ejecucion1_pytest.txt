@@ -1,0 +1,6 @@
+FAILED tests/test_servicio.py::test_pu06_entrada_sin_usuario_no_altera_stock
+FAILED tests/test_servicio.py::test_pu11_alerta_incluye_stock_igual_al_minimo
+FAILED tests/test_servicio.py::test_pu13_busqueda_insensible_a_mayusculas_y_tildes[martillo-esperado0]
+FAILED tests/test_servicio.py::test_pu13_busqueda_insensible_a_mayusculas_y_tildes[TUBERIA-esperado1]
+FAILED tests/test_servicio.py::test_pu13_busqueda_insensible_a_mayusculas_y_tildes[tub-0-esperado2]
+========================= 5 failed, 26 passed in 0.05s =========================
