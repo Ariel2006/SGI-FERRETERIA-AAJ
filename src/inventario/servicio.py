@@ -1,4 +1,5 @@
 """Servicio de inventario: reglas de negocio RF-01 a RF-07."""
+import unicodedata
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
 from typing import Callable
@@ -54,6 +55,7 @@ class ServicioInventario:
                           observacion="") -> Movimiento:
         producto = self.obtener(codigo)
         self._validar_cantidad(cantidad)
+        self._validar_usuario(usuario)          # DEF-01: validar antes de mutar
         producto.stock += cantidad
         return self._anotar(producto, TipoMovimiento.ENTRADA, cantidad,
                             usuario, observacion)
@@ -62,6 +64,7 @@ class ServicioInventario:
                          observacion="") -> Movimiento:
         producto = self.obtener(codigo)
         self._validar_cantidad(cantidad)
+        self._validar_usuario(usuario)
         if cantidad > producto.stock:
             raise StockInsuficienteError(
                 f"Stock insuficiente de {producto.codigo}: "
@@ -72,15 +75,17 @@ class ServicioInventario:
 
     # RF-04 ---------------------------------------------------------------
     def productos_bajo_stock(self) -> list[Producto]:
-        return sorted((p for p in self._productos.values()
-                       if p.stock < p.stock_minimo),
+        # DEF-02: el requisito dice "stock <= mínimo"; se reutiliza la regla
+        return sorted((p for p in self._productos.values() if p.bajo_stock),
                       key=lambda p: p.codigo)
 
     # RF-05 ---------------------------------------------------------------
     def buscar(self, texto) -> list[Producto]:
-        patron = (texto or "").strip()
+        # DEF-03: comparación sin distinguir mayúsculas ni tildes
+        patron = _normalizar(texto)
         return sorted((p for p in self._productos.values()
-                       if patron in p.codigo or patron in p.nombre),
+                       if patron in _normalizar(p.codigo)
+                       or patron in _normalizar(p.nombre)),
                       key=lambda p: p.codigo)
 
     # RF-06 ---------------------------------------------------------------
@@ -101,10 +106,20 @@ class ServicioInventario:
                 or cantidad <= 0:
             raise DatoInvalidoError("La cantidad debe ser un entero mayor que cero")
 
-    def _anotar(self, producto, tipo, cantidad, usuario, observacion):
+    @staticmethod
+    def _validar_usuario(usuario) -> None:
         if not (usuario or "").strip():
             raise DatoInvalidoError("El usuario responsable es obligatorio")
+
+    def _anotar(self, producto, tipo, cantidad, usuario, observacion):
         mov = Movimiento(producto.codigo, tipo, cantidad, usuario.strip(),
                          self._reloj(), observacion)
         self._movimientos.append(mov)
         return mov
+
+
+def _normalizar(texto) -> str:
+    """Minúsculas y sin tildes: 'Tubería' -> 'tuberia'."""
+    descompuesto = unicodedata.normalize("NFKD", (texto or "").strip())
+    return "".join(c for c in descompuesto
+                   if not unicodedata.combining(c)).casefold()
